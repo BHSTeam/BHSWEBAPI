@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1321
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BHSK_TMS_API", "BHSK_TMS_API\BHSK_TMS_API.csproj", "{9E1F5234-3BDF-4347-86B2-0C785BA5C237}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9E1F5234-3BDF-4347-86B2-0C785BA5C237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E1F5234-3BDF-4347-86B2-0C785BA5C237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E1F5234-3BDF-4347-86B2-0C785BA5C237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E1F5234-3BDF-4347-86B2-0C785BA5C237}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {164DAEE2-D2F4-405B-B57B-CBEBE54DAFE5}
+	EndGlobalSection
+EndGlobal

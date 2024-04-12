@@ -1,0 +1,4 @@
+SeqNo,Driver_Name,AssetNo,Location,GPSDateTime,Ignition,ECO_Normal_Brk_Count,ECO_Extreme_Brk_Count,ECO_Harsh_Brk_Count,ECO_Harsh_Acceleration,JobNo,Start_From,End_To,Origin_Pickupdate,Destination_Pickupdate,ActualPickupdate,ActualDeliverydate,ProjectType
+1,LEONG MENG FEI,YL9692J,"501 Airport Rd, Singapore 539931",01/03/2024 10:31:03,1,0,0,1,0,,,,,,,,
+2,LEONG MENG FEI,YL9692J,"70 Palmer Rd, Singapore 079427",01/03/2024 10:45:13,1,0,0,0,1,,,,,,,,
+3,LEONG MENG FEI,YL9692J,"10 Pandan Rd, Singapore 609258",01/03/2024 11:01:42,0,1,0,0,0,,,,,,,,

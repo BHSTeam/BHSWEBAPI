@@ -1,0 +1,4 @@
+20/3/2024 9:57:02 pm22
+20/3/2024 9:57:19 pmProvider=Microsoft.ACE.OLEDB.12.0;Data Source=D:\E drive\BHSK_TMS_API\BHSK_TMS_API\Excels\test2.xlsx;                          Extended Properties='Excel 12.0 Xml;HDR=YES;Readonly=0;'
+20/3/2024 9:57:19 pmProvider=Microsoft.ACE.OLEDB.12.0;Data Source=D:\E drive\BHSK_TMS_API\BHSK_TMS_API\Excels\test2.xlsx;                          Extended Properties='Excel 12.0 Xml;HDR=YES;Readonly=0;'
+20/3/2024 9:57:27 pm22
