@@ -737,6 +737,79 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_ShipmentDetails_Insert_Update : " + ex.Message);
             }
         }
+        public static cOutMessage ShipmentInfo_Update(int ShipmentID, bool Temperature, bool Humidity, bool Permit, bool Escort, int TotalArea, DateTime Pickup_Planned, DateTime Pickup_Actual, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATA, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    var result = conn.Query<cOutMessage>(
+                            "sp_ShipmentDetails_Update_API", new
+                            {
+                                @ShipmentID = ShipmentID,
+                                @Temperature = Temperature,
+                                @Humidity = Humidity,
+                                @Permit = Permit,
+                                @Escort = Escort,
+                                @TotalArea = TotalArea,
+                                @Pickup_Planned= Pickup_Planned,
+                                @Pickup_Actual= Pickup_Actual,
+                                @AirShippingLine= AirShippingLine,
+                                @FlightVessel_ETD= FlightVessel_ETD,
+                                @FlightVessel_ATA= FlightVessel_ATA,
+                                @Transit= Transit,
+                                @Transit_ETA= Transit_ETA,
+                                @Transit_ATA= Transit_ATA,
+                                @Transit_ETD= Transit_ETD,
+                                @Transit_ATD= Transit_ATD,
+                                @DelayedReason= DelayedReason,
+                                @Shock_Watch_Activated= Shock_Watch_Activated,
+                                @CreatedBy= CreatedBy
+
+                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" sp_UserInfo_Add_API : " + ex.Message);
+            }
+        }
+        public static cOutMessage ShipmentInfo_CreateNew(string EQPID, string Forwarder,string TradeTerm,string Country,string Mode,int NumberofPackages, int TotalArea, bool Temperature, bool Humidity,  bool Escort, bool Permit, string AttachementFile,string CreatedBy)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    var result = conn.Query<cOutMessage>(
+                            "sp_ShipmentDetails_Add_API", new
+                            {
+                                @EQPID = EQPID,
+                                @Forwarder = Forwarder,
+                                @TradeTerm = TradeTerm,
+                                @Country = Country,
+                                @Mode = Mode,
+                                @TotalArea = TotalArea,
+                                @Temperature = Temperature,
+                                @Humidity = Humidity,
+                                @Escort = Escort,
+                                @Permit = Permit,
+                                @AttachementFile= AttachementFile,
+                                @CreatedBy = CreatedBy,
+
+                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" sp_ShipmentDetails_Add_API : " + ex.Message);
+            }
+        }
         public static cOutMessage POD_Upload_Details_Insert(string DrivID,string TripNo, string JobNo,string Img_Name,string Img_type,string Name,string Status,string Lat,string Long,string Location,string PhotoSize)
         {
             try

@@ -1117,6 +1117,91 @@ namespace BHSK_TMS_API.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/addshipmentdetails")]
+        public string Addshipmentdetails(string EQPID, string Forwarder, string TradeTerm, string Country, string Mode, int NumberofPackages, int Total_Area, bool Temperature, bool Humidity, bool Escort, bool Permit)
+        {
+            var path = "";
+            var result = (dynamic)null;
+            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var Userid = identity.Name;
+            string message = "";
+            try
+            {
+                HttpResponseMessage ResponseMessage = null;
+                var httpRequest = HttpContext.Current.Request;
+                HttpPostedFile Inputfile = null;
+                Stream FileStream = null;
+             
+                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
+                {
+                    for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
+                    {
+                        Inputfile = httpRequest.Files[f];
+                        FileStream = Inputfile.InputStream;
+
+                        path = HttpContext.Current.Server.MapPath("~/Attachments/" + Inputfile.FileName);
+                        Inputfile.SaveAs(path);
+
+                        if (Userid != "")
+                        {
+                            result = DAL_AccessLayer.ShipmentInfo_CreateNew(EQPID, Forwarder, TradeTerm, Country, Mode, NumberofPackages, Total_Area, Temperature, Humidity, Escort, Permit, Inputfile.FileName, Userid);
+                        }
+
+                    }
+                    if (result.StatusCode == 1)
+                    {
+                        message = "The documents has been successfully uploaded.";
+                    }
+                    else
+                    {
+                        message = "Something Went Wrong!, The Excel file uploaded has fiald.";
+                    }
+
+                }
+                else
+                {
+                    message = "File does not selected!, Please check it.";
+                }
+
+                return message;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+           
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/updateshipmentdetails")]
+        public string  UpdateShipmentDetails(int ShipmentID, bool Temperature, bool Humidity, bool Permit, bool Escort, int TotalArea, DateTime Pickup_Planned, DateTime Pickup_Actual, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATA, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
+        {
+            List<ShipmentDetails> lstShipments = new List<ShipmentDetails>();
+            var Result1 = "";
+            try
+            {
+                var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+                var UserId = identity.Name;
+
+                var result = DAL_AccessLayer.ShipmentInfo_Update(ShipmentID, Temperature, Humidity, Permit, Escort, TotalArea, Pickup_Planned, Pickup_Actual, AirShippingLine, FlightVessel_ETD, FlightVessel_ATA, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, DelayedReason, Shock_Watch_Activated, UserId);
+                if (result.StatusCode == 1)
+                    Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                else
+                    Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+
+            }
+            catch (Exception ex)
+            {
+                return "{ ErrCode: -1,ErrMsg: Errors}";
+            }
+
+            return Result1;
+        }
+
+        [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getconfigurationdetails")]
  

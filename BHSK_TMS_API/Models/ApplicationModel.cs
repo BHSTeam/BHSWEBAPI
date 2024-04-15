@@ -326,7 +326,9 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime SG_ATA { get; set; }
         public bool Delayed { get; set; }
         public string DelayedReason { get; set; }
- 
+        public bool Shock_Watch_Activated { get; set; }
+
+
 
     }
     public class MainToolsList
@@ -358,6 +360,8 @@ namespace BHSK_TMS_API.ApplicationModel
         public bool Permit { get; set; }
         public bool Escort { get; set; }
         public string Forwarder { get; set; }
+
+
  
     }
 
