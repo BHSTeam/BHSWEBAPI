@@ -737,7 +737,8 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_ShipmentDetails_Insert_Update : " + ex.Message);
             }
         }
-        public static cOutMessage ShipmentInfo_Update(int ShipmentID, bool Temperature, bool Humidity, bool Permit, bool Escort, int TotalArea, DateTime Pickup_Planned, DateTime Pickup_Actual, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATA, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
+        
+        public static cOutMessage ShipmentInfo_Update(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
         {
             try
             {
@@ -747,26 +748,39 @@ namespace BHSK_TMS_API
 
                     var result = conn.Query<cOutMessage>(
                             "sp_ShipmentDetails_Update_API", new
-                            {
+                            {// DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
                                 @ShipmentID = ShipmentID,
+                                @TradeTerm = TradeTerm,
+                                @Country = Country,
+                                @Forwarder = Forwarder,
                                 @Temperature = Temperature,
                                 @Humidity = Humidity,
                                 @Permit = Permit,
                                 @Escort = Escort,
+                                @Mode = Mode,
                                 @TotalArea = TotalArea,
-                                @Pickup_Planned= Pickup_Planned,
-                                @Pickup_Actual= Pickup_Actual,
-                                @AirShippingLine= AirShippingLine,
-                                @FlightVessel_ETD= FlightVessel_ETD,
-                                @FlightVessel_ATA= FlightVessel_ATA,
-                                @Transit= Transit,
-                                @Transit_ETA= Transit_ETA,
-                                @Transit_ATA= Transit_ATA,
-                                @Transit_ETD= Transit_ETD,
-                                @Transit_ATD= Transit_ATD,
-                                @DelayedReason= DelayedReason,
-                                @Shock_Watch_Activated= Shock_Watch_Activated,
-                                @CreatedBy= CreatedBy
+                                @Num_Crates = Num_Crates,
+                                @TotalVolume = TotalVolume,
+                                @Pickup_Planned = Pickup_Planned,
+                                @Pickup_Actual = Pickup_Actual,
+                                @FlightVesselNumber = FlightVesselNumber,
+                                @AirShippingLine = AirShippingLine,
+                                @FlightVessel_ETD = FlightVessel_ETD,
+                                @FlightVessel_ATD = FlightVessel_ATD,
+                                @Transit = Transit,
+                                @Transit_ETA = Transit_ETA,
+                                @Transit_ATA = Transit_ATA,
+                                @Transit_ETD = Transit_ETD,
+                                @Transit_ATD = Transit_ATD,
+                                @Planned_SG_Arrival = Planned_SG_Arrival,
+                                @Confirm_SG_Arrival = Confirm_SG_Arrival,
+                                @Actual_SG_Arrival = Actual_SG_Arrival,
+                                @DocumentReady = DocumentReady,
+                                @CargoReady = CargoReady,
+                                @Delayed = Delayed,
+                                @DelayedReason = DelayedReason,
+                                @Shock_Watch_Activated = Shock_Watch_Activated,
+                                @CreatedBy = CreatedBy
 
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
                     return result;

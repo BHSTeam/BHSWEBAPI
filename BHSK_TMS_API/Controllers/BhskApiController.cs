@@ -1177,7 +1177,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/updateshipmentdetails")]
-        public string  UpdateShipmentDetails(int ShipmentID, bool Temperature, bool Humidity, bool Permit, bool Escort, int TotalArea, DateTime Pickup_Planned, DateTime Pickup_Actual, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATA, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
+        public string  UpdateShipmentDetails(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
         {
             List<ShipmentDetails> lstShipments = new List<ShipmentDetails>();
             var Result1 = "";
@@ -1186,7 +1186,7 @@ namespace BHSK_TMS_API.Controllers
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
                 var UserId = identity.Name;
 
-                var result = DAL_AccessLayer.ShipmentInfo_Update(ShipmentID, Temperature, Humidity, Permit, Escort, TotalArea, Pickup_Planned, Pickup_Actual, AirShippingLine, FlightVessel_ETD, FlightVessel_ATA, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, DelayedReason, Shock_Watch_Activated, UserId);
+                var result = DAL_AccessLayer.ShipmentInfo_Update(ShipmentID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, UserId);
                 if (result.StatusCode == 1)
                     Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                 else
