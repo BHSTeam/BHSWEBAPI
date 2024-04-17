@@ -926,7 +926,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getimportdetails")]
-        public IEnumerable<ApplicationModel.ImportDetails> getimportdetails(int ImportId,int Page)
+        public IEnumerable<ApplicationModel.ImportDetails> getimportdetails(int Page, string Search_keyword)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -934,7 +934,7 @@ namespace BHSK_TMS_API.Controllers
             var result = (dynamic)null;
             if (Userid != "")
             {
-                result = DAL_AccessLayer.GetImportDetails(ImportId, Page, 1);
+                result = DAL_AccessLayer.GetImportDetails(Page, Search_keyword, 1);
             }
             return result;
         }

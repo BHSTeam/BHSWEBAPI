@@ -514,7 +514,7 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_Get_ShipmentsList_UMC_API : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.ImportDetails> GetImportDetails(int ImportId,int Page, int Opt)
+        public static List<ApplicationModel.ImportDetails> GetImportDetails(int Page, string Search_keyword, int Opt)
         {
             try
             {
@@ -524,9 +524,9 @@ namespace BHSK_TMS_API
                     var result = conn.Query<ApplicationModel.ImportDetails>(
                             "sp_Get_ImportFiles_UMC_API", new
                             {
-                                @ImportId = ImportId,
                                 @Page = Page,
-                                @Opt = Opt
+                                @Opt = Opt,
+                                @Search_keyword = Search_keyword
                             }, commandType: CommandType.StoredProcedure).ToList();
 
                     return result;
