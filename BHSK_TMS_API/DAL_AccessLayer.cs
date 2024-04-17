@@ -471,7 +471,7 @@ namespace BHSK_TMS_API
                             {
                                 @Area = Area,
                                 @Vendor = Vendor,
-                                @FromeDate = Fromdate,
+                                @FromDate = Fromdate,
                                 @ToDate = Todate,
                                 @Search_keyword = Search_keyword,
                                 @Page = Page,
