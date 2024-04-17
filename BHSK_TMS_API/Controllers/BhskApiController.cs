@@ -19,6 +19,7 @@ using ExcelDataReader;
 using System.Data.OleDb;
 using System.Web.Http.Results;
 using System.Web.Services.Description;
+using System.Configuration;
 
 namespace BHSK_TMS_API.Controllers
 {
@@ -1066,7 +1067,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/addconfiguration")]
-        public HttpResponseMessage addConfiguration(string name,string type,string value)
+        public HttpResponseMessage AddConfiguration([FromBody] ConfigurationDetails configuration)
         {
      
             var Result1 = "";
@@ -1076,7 +1077,7 @@ namespace BHSK_TMS_API.Controllers
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
                 var UserId = identity.Name;
             
-                var result = DAL_AccessLayer.Configuration_Add_Update(0, name, type, value,1,UserId);
+                var result = DAL_AccessLayer.Configuration_Add_Update(0, configuration.Name, configuration.Type, configuration.Value, 1,UserId);
                 if (result.StatusCode == 1)
                     Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                 else
@@ -1093,7 +1094,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/updateconfiguration")]
-        public HttpResponseMessage UpdateConfiguration(int id,string name, string type, string value)
+        public HttpResponseMessage UpdateConfiguration([FromBody] ConfigurationDetails configuration)
         {
 
             var Result1 = "";
@@ -1103,7 +1104,7 @@ namespace BHSK_TMS_API.Controllers
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
                 var UserId = identity.Name;
 
-                var result = DAL_AccessLayer.Configuration_Add_Update(id, name, type, value, 2, UserId);
+                var result = DAL_AccessLayer.Configuration_Add_Update(configuration.Id, configuration.Name, configuration.Type, configuration.Value, 2, UserId);
                 if (result.StatusCode == 1)
                     Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                 else
@@ -1121,7 +1122,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/addshipmentdetails")]
-        public string Addshipmentdetails(string EQPID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated)
+        public string AddShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
             String path;
             var result = (dynamic)null;
@@ -1149,7 +1150,7 @@ namespace BHSK_TMS_API.Controllers
                     }
                     if (Userid != "")
                     {
-                        result = DAL_AccessLayer.ShipmentInfo_CreateNew(EQPID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, filenames, Userid);
+                        result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, Userid);
                     }
                     if (result.StatusCode == 1)
                     {
@@ -1179,7 +1180,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/updateshipmentdetails")]
-        public string  UpdateShipmentDetails(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated)
+        public string  UpdateShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
             String path;
             var result = (dynamic)null;
@@ -1207,7 +1208,7 @@ namespace BHSK_TMS_API.Controllers
                     }
                     if (UserId != "")
                     {
-                        result = DAL_AccessLayer.ShipmentInfo_Update(ShipmentID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, filenames, UserId);
+                        result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, UserId);
                         //result = DAL_AccessLayer.ShipmentInfo_CreateNew(EQPID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, filenames, Userid);
                     }
                     if (result.StatusCode == 1)

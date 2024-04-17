@@ -294,7 +294,6 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Vendor { get; set; }
         public string Entity { get; set; }
         public string Area { get; set; }
-        public string Model { get; set; }
         public string MIDate { get; set; }
         public string FCADate { get; set; }
         public string Remarks { get; set; }
@@ -314,7 +313,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string AirShippingLine { get; set; }
         public string FlightVesselNumber { get; set; }
         public DateTime FlightVessel_ETD { get; set; }
-        public DateTime FlightVessel_ATA { get; set; }
+        public DateTime FlightVessel_ATD { get; set; }
         public string Transit { get; set; }
         public DateTime Transit_ETA { get; set; }
         public DateTime Transit_ATA { get; set; }
@@ -322,14 +321,14 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime Transit_ATD { get; set; }
         public string MasterAWB { get; set; }
         public string HAWB { get; set; }
-        public DateTime SG_ETA { get; set; }
-        public DateTime SG_ATA { get; set; }
+        public DateTime Planned_SG_Arrival { get; set; }
+        public DateTime Actual_SG_Arrival { get; set; }
         public bool Delayed { get; set; }
         public string DelayedReason { get; set; }
         public bool Shock_Watch_Activated { get; set; }
-
-
-
+        public bool Confirm_SG_Arrival { get; set; }
+        public bool DocumentReady { get; internal set; }
+        public bool CargoReady { get; internal set; }
     }
     public class MainToolsList
     {
