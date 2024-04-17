@@ -738,7 +738,7 @@ namespace BHSK_TMS_API
             }
         }
         
-        public static cOutMessage ShipmentInfo_Update(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
+        public static cOutMessage ShipmentInfo_Update(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string[] AttachementFiles, string CreatedBy)
         {
             try
             {
@@ -748,7 +748,7 @@ namespace BHSK_TMS_API
 
                     var result = conn.Query<cOutMessage>(
                             "sp_ShipmentDetails_Update_API", new
-                            {// DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
+                            {
                                 @ShipmentID = ShipmentID,
                                 @TradeTerm = TradeTerm,
                                 @Country = Country,
@@ -780,6 +780,7 @@ namespace BHSK_TMS_API
                                 @Delayed = Delayed,
                                 @DelayedReason = DelayedReason,
                                 @Shock_Watch_Activated = Shock_Watch_Activated,
+                                @AttachmentFile = String.Join(",", AttachementFiles),
                                 @CreatedBy = CreatedBy
 
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
@@ -791,30 +792,49 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UserInfo_Add_API : " + ex.Message);
             }
         }
-        public static cOutMessage ShipmentInfo_CreateNew(string EQPID, string Forwarder,string TradeTerm,string Country,string Mode,int NumberofPackages, int TotalArea, bool Temperature, bool Humidity,  bool Escort, bool Permit, string AttachementFile,string CreatedBy)
+        public static cOutMessage ShipmentInfo_CreateNew(string EQPID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string[] AttachementFiles, string CreatedBy)
         {
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
-
                     var result = conn.Query<cOutMessage>(
                             "sp_ShipmentDetails_Add_API", new
                             {
                                 @EQPID = EQPID,
-                                @Forwarder = Forwarder,
                                 @TradeTerm = TradeTerm,
                                 @Country = Country,
-                                @Mode = Mode,
-                                @TotalArea = TotalArea,
+                                @Forwarder = Forwarder,
                                 @Temperature = Temperature,
                                 @Humidity = Humidity,
-                                @Escort = Escort,
                                 @Permit = Permit,
-                                @AttachementFile= AttachementFile,
+                                @Escort = Escort,
+                                @Mode = Mode,
+                                @TotalArea = TotalArea,
+                                @Num_Crates = Num_Crates,
+                                @TotalVolume = TotalVolume,
+                                @Pickup_Planned = Pickup_Planned,
+                                @Pickup_Actual = Pickup_Actual,
+                                @FlightVesselNumber = FlightVesselNumber,
+                                @AirShippingLine = AirShippingLine,
+                                @FlightVessel_ETD = FlightVessel_ETD,
+                                @FlightVessel_ATD = FlightVessel_ATD,
+                                @Transit = Transit,
+                                @Transit_ETA = Transit_ETA,
+                                @Transit_ATA = Transit_ATA,
+                                @Transit_ETD = Transit_ETD,
+                                @Transit_ATD = Transit_ATD,
+                                @Planned_SG_Arrival = Planned_SG_Arrival,
+                                @Confirm_SG_Arrival = Confirm_SG_Arrival,
+                                @Actual_SG_Arrival = Actual_SG_Arrival,
+                                @DocumentReady = DocumentReady,
+                                @CargoReady = CargoReady,
+                                @Delayed = Delayed,
+                                @DelayedReason = DelayedReason,
+                                @Shock_Watch_Activated = Shock_Watch_Activated,
+                                @AttachmentFile = String.Join(",", AttachementFiles),
                                 @CreatedBy = CreatedBy,
-
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
                     return result;
                 }

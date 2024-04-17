@@ -17,6 +17,8 @@ using Newtonsoft.Json;
 using System.Xml;
 using ExcelDataReader;
 using System.Data.OleDb;
+using System.Web.Http.Results;
+using System.Web.Services.Description;
 
 namespace BHSK_TMS_API.Controllers
 {
@@ -1119,22 +1121,22 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/addshipmentdetails")]
-        public string Addshipmentdetails(string EQPID, string Forwarder, string TradeTerm, string Country, string Mode, int NumberofPackages, int Total_Area, bool Temperature, bool Humidity, bool Escort, bool Permit)
+        public string Addshipmentdetails(string EQPID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated)
         {
-            var path = "";
+            String path;
             var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var Userid = identity.Name;
-            string message = "";
             try
             {
-                HttpResponseMessage ResponseMessage = null;
+                string message;
                 var httpRequest = HttpContext.Current.Request;
                 HttpPostedFile Inputfile = null;
                 Stream FileStream = null;
              
                 if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
                 {
+                    string[] filenames = new string[httpRequest.Files.Count];
                     for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
                     {
                         Inputfile = httpRequest.Files[f];
@@ -1143,11 +1145,11 @@ namespace BHSK_TMS_API.Controllers
                         path = HttpContext.Current.Server.MapPath("~/Attachments/" + Inputfile.FileName);
                         Inputfile.SaveAs(path);
 
-                        if (Userid != "")
-                        {
-                            result = DAL_AccessLayer.ShipmentInfo_CreateNew(EQPID, Forwarder, TradeTerm, Country, Mode, NumberofPackages, Total_Area, Temperature, Humidity, Escort, Permit, Inputfile.FileName, Userid);
-                        }
-
+                        filenames[f] = Inputfile.FileName;
+                    }
+                    if (Userid != "")
+                    {
+                        result = DAL_AccessLayer.ShipmentInfo_CreateNew(EQPID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, filenames, Userid);
                     }
                     if (result.StatusCode == 1)
                     {
@@ -1177,28 +1179,58 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/updateshipmentdetails")]
-        public string  UpdateShipmentDetails(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string CreatedBy)
+        public string  UpdateShipmentDetails(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated)
         {
-            List<ShipmentDetails> lstShipments = new List<ShipmentDetails>();
-            var Result1 = "";
+            String path;
+            var result = (dynamic)null;
+            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var UserId = identity.Name;
             try
             {
-                var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-                var UserId = identity.Name;
+                string message;
+                var httpRequest = HttpContext.Current.Request;
+                HttpPostedFile Inputfile = null;
+                Stream FileStream = null;
 
-                var result = DAL_AccessLayer.ShipmentInfo_Update(ShipmentID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, UserId);
-                if (result.StatusCode == 1)
-                    Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
+                {
+                    string[] filenames = new string[httpRequest.Files.Count];
+                    for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
+                    {
+                        Inputfile = httpRequest.Files[f];
+                        FileStream = Inputfile.InputStream;
+
+                        path = HttpContext.Current.Server.MapPath("~/Attachments/" + Inputfile.FileName);
+                        Inputfile.SaveAs(path);
+
+                        filenames[f] = Inputfile.FileName;
+                    }
+                    if (UserId != "")
+                    {
+                        result = DAL_AccessLayer.ShipmentInfo_Update(ShipmentID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, filenames, UserId);
+                        //result = DAL_AccessLayer.ShipmentInfo_CreateNew(EQPID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, filenames, Userid);
+                    }
+                    if (result.StatusCode == 1)
+                    {
+                        message = "The documents has been successfully uploaded.";
+                    }
+                    else
+                    {
+                        message = "Something Went Wrong!, The Excel file uploaded has fiald.";
+                    }
+
+                }
                 else
-                    Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+                {
+                    message = "File does not selected!, Please check it.";
+                }
 
+                return message;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return "{ ErrCode: -1,ErrMsg: Errors}";
+                throw;
             }
-
-            return Result1;
         }
 
         [Authorize]
