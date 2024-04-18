@@ -1196,7 +1196,7 @@ namespace BHSK_TMS_API.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, Result1);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost]
         [Route("api/bhskapi/addshipmentdetails")]
         public string AddShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
