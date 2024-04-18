@@ -925,7 +925,7 @@ namespace BHSK_TMS_API.Controllers
             var result = (dynamic)null;
             if (Userid != "")
             {
-                result = DAL_AccessLayer.GetMainToolsList(Area, Vendor, Fromdate, Todate, Search_keyword, 0, 2);
+                result = DAL_AccessLayer.GetMainToolsList(Userid, Area, Vendor, Fromdate, Todate, Search_keyword, 0, 2);
             }
             return result;
         }
