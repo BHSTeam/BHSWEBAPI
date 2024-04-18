@@ -12,6 +12,7 @@ using System.Web.Mvc;
 using System.Web.WebPages.Html;
 using System.Web;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace BHSK_TMS_API.ApplicationModel
 {
@@ -336,9 +337,17 @@ namespace BHSK_TMS_API.ApplicationModel
         public string DelayedReason { get; set; }
         public bool Shock_Watch_Activated { get; set; }
         public bool Confirm_SG_Arrival { get; set; }
-        public bool DocumentReady { get; internal set; }
-        public bool CargoReady { get; internal set; }
+        public bool DocumentReady { get; set; }
+        public bool CargoReady { get; set; }
+        public Collection<Document> Documents { get; set; }
     }
+
+    public class Document
+    {
+        public string FileName { get; set; }
+        public string Data { get; set; }
+    }
+
     public class MainToolsList
     {
         public int Id { get; set; }

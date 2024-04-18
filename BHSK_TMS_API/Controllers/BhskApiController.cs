@@ -1196,37 +1196,25 @@ namespace BHSK_TMS_API.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, Result1);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         [Route("api/bhskapi/addshipmentdetails")]
         public string AddShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
-            String path;
             var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var Userid = identity.Name;
             try
             {
                 string message;
-                var httpRequest = HttpContext.Current.Request;
-                HttpPostedFile Inputfile = null;
-                Stream FileStream = null;
-                string[] filenames = null;
 
-                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
-                {
-                    filenames = new string[httpRequest.Files.Count];
-                    for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
-                    {
-                        Inputfile = httpRequest.Files[f];
-                        FileStream = Inputfile.InputStream;
-
-                        path = HttpContext.Current.Server.MapPath("~/Attachments/" + Inputfile.FileName);
-                        Inputfile.SaveAs(path);
-
-                        filenames[f] = Inputfile.FileName;
-                    }
+                foreach (Document document in shipmentDetails.Documents) {
+                    String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
+                    File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
                 }
+
+                string[] filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
+
                 if (Userid != "")
                 {
                     result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, Userid);
@@ -1255,32 +1243,19 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/updateshipmentdetails")]
         public string UpdateShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
-            String path;
             var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var UserId = identity.Name;
             try
             {
                 string message;
-                var httpRequest = HttpContext.Current.Request;
-                HttpPostedFile Inputfile = null;
-                Stream FileStream = null;
-                string[] filenames = null;
-
-                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
+                foreach (Document document in shipmentDetails.Documents)
                 {
-                    filenames = new string[httpRequest.Files.Count];
-                    for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
-                    {
-                        Inputfile = httpRequest.Files[f];
-                        FileStream = Inputfile.InputStream;
-
-                        path = HttpContext.Current.Server.MapPath("~/Attachments/" + Inputfile.FileName);
-                        Inputfile.SaveAs(path);
-
-                        filenames[f] = Inputfile.FileName;
-                    }
+                    String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
+                    File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
                 }
+
+                string[] filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
                 if (UserId != "")
                 {
                     result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, UserId);
