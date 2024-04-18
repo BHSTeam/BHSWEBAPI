@@ -80,7 +80,7 @@ namespace BHSK_TMS_API
                                 @Vehicleno = Vehicleno,
                                 @TrailerNo = TrailerNo,
                                 @SelectDate = SelectDate,
-                                @InputData= InputData
+                                @InputData = InputData
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
 
                     return result;
@@ -92,8 +92,8 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_Insert_Update_MastersDetails : " + ex.Message);
             }
         }
-        
-        public static cOutMessage Employee_Duty_IN_OUT_Update(string EmployeeCode,string EmployeeName, DateTime DutyIn_Datetime, DateTime DutyOut_Datetime, float DutyIn_Latitude, float DutyIn_Longitude, float DutyOut_Latitude, float DutyOut_Longitude)
+
+        public static cOutMessage Employee_Duty_IN_OUT_Update(string EmployeeCode, string EmployeeName, DateTime DutyIn_Datetime, DateTime DutyOut_Datetime, float DutyIn_Latitude, float DutyIn_Longitude, float DutyOut_Latitude, float DutyOut_Longitude)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" Sp_Update_Duty_ONOFF_QHR : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.JobRequests> Get_JobRequests_aStar(string InputData1,string InputData2,string InputData3)
+        public static List<ApplicationModel.JobRequests> Get_JobRequests_aStar(string InputData1, string InputData2, string InputData3)
         {
             try
             {
@@ -178,7 +178,7 @@ namespace BHSK_TMS_API
                     {
                         @Opt = Opt,
                         @InputValue1 = InputData1,
-                   
+
                     }, commandType: CommandType.StoredProcedure).ToList();
 
                     return result;
@@ -296,7 +296,7 @@ namespace BHSK_TMS_API
                                 @UserId = UserEmailId,
                                 @TempPassword = TempPassword,
                                 @TempEncryptPwd = TempEncryptPwd
-                          }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
 
 
                     return result;
@@ -308,7 +308,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" ForgotPassword: Verification : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.JobStatusActivities> Get_Jobactivities_aStar(string starttime,string endtime,string workgroup)
+        public static List<ApplicationModel.JobStatusActivities> Get_Jobactivities_aStar(string starttime, string endtime, string workgroup)
         {
             try
             {
@@ -355,7 +355,7 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_GetLogin_API : " + ex.Message);
             }
         }
-        public static cOutMessage Change_Reset_Password(string UserId, string OldPassword,string NewPassword, int Opt)
+        public static cOutMessage Change_Reset_Password(string UserId, string OldPassword, string NewPassword, int Opt)
         {
             try
             {
@@ -414,11 +414,11 @@ namespace BHSK_TMS_API
                             "sp_Get_UserList_API", new
                             {
                                 @UserName = UserName,
-                                @EmailId= EmailId,
-                                @Contact= Contact,
-                                @Workgroup= Workgroup,
-                                @Search_keyword= Search_keyword,
-                                @Page= Page,
+                                @EmailId = EmailId,
+                                @Contact = Contact,
+                                @Workgroup = Workgroup,
+                                @Search_keyword = Search_keyword,
+                                @Page = Page,
                                 @Opt = Opt
                             }, commandType: CommandType.StoredProcedure).ToList();
 
@@ -564,7 +564,7 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_Get_UserList_API : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.ImportUpdateDetails> GetImportUpdateDetails(int ImportId,int Page, int Opt)
+        public static List<ApplicationModel.ImportUpdateDetails> GetImportUpdateDetails(int ImportId, int Page, int Opt)
         {
             try
             {
@@ -690,7 +690,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static cOutMessage Import_DetailsUpdate(int NewRec, int UpdRec,int Fail,int Opt,string ErrorsMsg, int RowNumber,string CreatedBy)
+        public static cOutMessage Import_DetailsUpdate(int NewRec, int UpdRec, int Fail, int Opt, string ErrorsMsg, int RowNumber, string CreatedBy)
         {
             try
             {
@@ -704,9 +704,9 @@ namespace BHSK_TMS_API
                                 @NewCount = NewRec,
                                 @UpdateCount = UpdRec,
                                 @FailCount = Fail,
-                                @Opt= Opt,
-                                @Errors=ErrorsMsg,
-                                @RowNumber= RowNumber,
+                                @Opt = Opt,
+                                @Errors = ErrorsMsg,
+                                @RowNumber = RowNumber,
                                 @CreatedBy = CreatedBy
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
                     return result;
@@ -717,7 +717,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_ImportDetails_Insert : " + ex.Message);
             }
         }
-        public static cOutMessage ShipmentInfo_Add(string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, DateTime MIDate, DateTime FCADate,string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status,int RowNumber, string CreatedBy)
+        public static cOutMessage ShipmentInfo_Add(string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, DateTime MIDate, DateTime FCADate, string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status, int RowNumber, string CreatedBy)
         {
             try
             {
@@ -734,24 +734,24 @@ namespace BHSK_TMS_API
                                 @Entity = Entity,
                                 @Area = Area,
                                 @Model = Model,
-                                @MIDate= MIDate,
-                                @FCADate= FCADate,
+                                @MIDate = MIDate,
+                                @FCADate = FCADate,
                                 @Remarks = Remarks,
                                 @TradeTerm = TradeTerm,
-                                @Country =Country,
+                                @Country = Country,
                                 @Mode = Mode,
-                                @TempContol= TempContol,
+                                @TempContol = TempContol,
                                 @Humidity = Humidity,
-                                @M3Val1= M3Val1,
-                                @M3Val2= M3Val2,
-                                @M3Val3= M3Val3,
-                                @Permit= Permit,
-                                @Esscorts= Esscorts,
-                                @Forwarder= Forwarder,
+                                @M3Val1 = M3Val1,
+                                @M3Val2 = M3Val2,
+                                @M3Val3 = M3Val3,
+                                @Permit = Permit,
+                                @Esscorts = Esscorts,
+                                @Forwarder = Forwarder,
                                 @Status = Status,
-                                @RowNumber=RowNumber,
+                                @RowNumber = RowNumber,
                                 @CreatedBy = CreatedBy
- 
+
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
                     return result;
                 }
@@ -761,7 +761,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_ShipmentDetails_Insert_Update : " + ex.Message);
             }
         }
-        
+
         public static cOutMessage ShipmentInfo_Update(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime Pickup_Planned, DateTime Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime FlightVessel_ETD, DateTime FlightVessel_ATD, string Transit, DateTime Transit_ETA, DateTime Transit_ATA, DateTime Transit_ETD, DateTime Transit_ATD, DateTime Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string[] AttachmentFiles, string CreatedBy)
         {
             try
@@ -890,7 +890,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static cOutMessage POD_Upload_Details_Insert(string DrivID,string TripNo, string JobNo,string Img_Name,string Img_type,string Name,string Status,string Lat,string Long,string Location,string PhotoSize)
+        public static cOutMessage POD_Upload_Details_Insert(string DrivID, string TripNo, string JobNo, string Img_Name, string Img_type, string Name, string Status, string Lat, string Long, string Location, string PhotoSize)
         {
             try
             {
