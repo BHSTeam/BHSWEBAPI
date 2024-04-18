@@ -5,6 +5,8 @@ using System.Web;
 using Microsoft.Owin.Security.OAuth;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
+using BHSK_TMS_API.ApplicationModel;
 
 namespace BHSK_TMS_API.Provider
 {
@@ -28,9 +30,10 @@ namespace BHSK_TMS_API.Provider
             var identity = new ClaimsIdentity(context.Options.AuthenticationType);
             if (IsAuthorizedUser(context.UserName, context.Password))
             {
-                identity.AddClaim(new Claim("sub", context.UserName));
-                identity.AddClaim(new Claim(ClaimTypes.Role, "user"));
-                identity.AddClaim(new Claim(ClaimTypes.Name, context.UserName));
+                UserInfo userInfo = DAL_AccessLayer.UserList(context.UserName, "", "", "", "", 0, 1).First();
+                identity.AddClaim(new Claim("sub", userInfo.UserName));
+                identity.AddClaim(new Claim(ClaimTypes.Role, userInfo.Role));
+                identity.AddClaim(new Claim(ClaimTypes.Name, userInfo.UserName));
                 identity.AddClaim(new Claim(ClaimTypes.Expired, "60"));
 
                 context.Validated(identity);

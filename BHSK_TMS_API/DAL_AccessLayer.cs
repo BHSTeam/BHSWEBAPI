@@ -459,7 +459,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static List<ApplicationModel.MainToolsList> GetMainToolsList(string Area, string Vendor, string Fromdate, string Todate, string Search_keyword, int Page, int Opt)
+        public static List<ApplicationModel.MainToolsList> GetMainToolsList(string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword, int Page, int Opt)
         {
             try
             {
@@ -639,7 +639,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static cOutMessage Configuration_Add_Update(int Id,string Name, string Type, string Value, int Opt,string CreatedBy)
+        public static cOutMessage Configuration_Add_Update(int Id, string Name, string Type, string Value, int Opt, string CreatedBy)
         {
             try
             {
@@ -656,7 +656,6 @@ namespace BHSK_TMS_API
                                 @Value = Value,
                                 @Opt = Opt,
                                 @CreatedBy = CreatedBy
-
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
                     return result;
                 }
@@ -666,6 +665,29 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_Configuration_Insert_Update : " + ex.Message);
             }
         }
+
+        public static cOutMessage Configuration_Delete(int Id)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    var result = conn.Query<cOutMessage>(
+                            "sp_UMC_Configuration_Delete", new
+                            {
+                                @Id = Id,
+                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" sp_UMC_Configuration_Delete : " + ex.Message);
+            }
+        }
+
         public static cOutMessage Import_DetailsUpdate(int NewRec, int UpdRec,int Fail,int Opt,string ErrorsMsg, int RowNumber,string CreatedBy)
         {
             try
@@ -693,7 +715,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_ImportDetails_Insert : " + ex.Message);
             }
         }
-        public static cOutMessage ShipmentInfo_Add(string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, string MIDate, string FCADate,string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status,int RowNumber, string CreatedBy)
+        public static cOutMessage ShipmentInfo_Add(string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, DateTime MIDate, DateTime FCADate,string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status,int RowNumber, string CreatedBy)
         {
             try
             {
@@ -844,6 +866,28 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_ShipmentDetails_Add_API : " + ex.Message);
             }
         }
+        public static cOutMessage ShipmentInfo_Split(int id, int splitNumCrates)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+                    var result = conn.Query<cOutMessage>(
+                            "sp_ShipmentDetails_Split_API", new
+                            {
+                                @ShipmentID = id,
+                                @Split_Crates = splitNumCrates
+                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" sp_ShipmentDetails_Split_API : " + ex.Message);
+            }
+        }
+
         public static cOutMessage POD_Upload_Details_Insert(string DrivID,string TripNo, string JobNo,string Img_Name,string Img_type,string Name,string Status,string Lat,string Long,string Location,string PhotoSize)
         {
             try

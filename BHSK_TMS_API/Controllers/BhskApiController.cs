@@ -20,6 +20,8 @@ using System.Data.OleDb;
 using System.Web.Http.Results;
 using System.Web.Services.Description;
 using System.Configuration;
+using System.Runtime.InteropServices;
+using System.Data.Entity;
 
 namespace BHSK_TMS_API.Controllers
 {
@@ -549,7 +551,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getuserlist")]
-        public IEnumerable<ApplicationModel.UserInfo> getUserList(string UserName,string EmailId,string Contact,string Workgroup,string Search_keyword,int Page)
+        public IEnumerable<ApplicationModel.UserInfo> getUserList([Optional] string UserName,[Optional] string EmailId,[Optional] string Contact,[Optional] string Workgroup,[Optional] string Search_keyword,int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -717,7 +719,7 @@ namespace BHSK_TMS_API.Controllers
                                     string Country = "";
                                     string Mode = "";
                                     string MIDate = "";
-                                    string FCADate = "";
+                                    string FCADate= "";
                                     string TempContol = "0";
                                     string Humidity = "0";
                                     string M3Val1 = "";
@@ -739,7 +741,7 @@ namespace BHSK_TMS_API.Controllers
                                                 {
                                                     Remarks = dsexcelRecords.Rows[row][col].ToString();
                                                     ChkRow = 1;
-                                                }                                                   
+                                                }
                                                 else if (colname == "Area" || colname == "Column1")
                                                 {
                                                     Area = dsexcelRecords.Rows[row][col].ToString();
@@ -749,17 +751,17 @@ namespace BHSK_TMS_API.Controllers
                                                 {
                                                     Entity = dsexcelRecords.Rows[row][col].ToString();
                                                     ChkRow = 1;
-                                                }                                                   
+                                                }
                                                 else if (colname == "EQPID" || colname == "Column3" || colname == "UMC EQID")
                                                 {
                                                     EQPID = dsexcelRecords.Rows[row][col].ToString();
                                                     ChkRow = 1;
-                                                }                                                    
+                                                }
                                                 else if (colname == "Vendor" || colname == "Column4")
                                                 {
                                                     Vendor = dsexcelRecords.Rows[row][col].ToString();
                                                     ChkRow = 1;
-                                                }                                                    
+                                                }
                                                 else if (colname == "Model" || colname == "Column5" || colname == "Tool Model")
                                                     Model = dsexcelRecords.Rows[row][col].ToString();
                                                 else if (colname == "Trade Term" || colname == "Column6" || colname == "Incoterm")
@@ -768,9 +770,9 @@ namespace BHSK_TMS_API.Controllers
                                                     Country = dsexcelRecords.Rows[row][col].ToString();
                                                 else if (colname == "Mode" || colname == "Column8")
                                                     Mode = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "M / I Date\n(12 / 21)" || colname == "M/I Date_(12/21)" || colname == "Column9"  || colname == "Move in Date")
+                                                else if (colname == "M / I Date\n(12 / 21)" || colname == "M/I Date_(12/21)" || colname == "Column9" || colname == "Move in Date")
                                                     MIDate = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "FCA Date\n(12 / 21)" || colname == "FCA Date_(12/21)" || colname == "Column10" || colname== "FCA Date 2")
+                                                else if (colname == "FCA Date\n(12 / 21)" || colname == "FCA Date_(12/21)" || colname == "Column10" || colname == "FCA Date 2")
                                                     FCADate = dsexcelRecords.Rows[row][col].ToString();
                                                 else if (colname == "Temp Contol" || colname == "Column11")
                                                     TempContol = dsexcelRecords.Rows[row][col].ToString();
@@ -807,7 +809,7 @@ namespace BHSK_TMS_API.Controllers
                                         {
                                             RowNum = RowNum + 1;
                                             string inputString = EQPID + "," + EQPID + "," + Vendor + "," + Entity + "," + Area + "," + Model + "," + MIDate + "," + FCADate + "," + Remarks + "," + TradeTerm + "," + Country + "," + Mode + "," + TempContol + "," + Humidity + "," + M3Val1 + "," + M3Val2 + "," + M3Val3 + "," + Permit + "," + Esscorts + "," + Forwarder + "," + Status + "," + Userid;
-                                            result = DAL_AccessLayer.ShipmentInfo_Add(EQPID, EQPID, Vendor, Entity, Area, Model, MIDate, FCADate, Remarks, TradeTerm, Country, Mode, TempContol, Humidity, M3Val1, M3Val2, M3Val3, Permit, Esscorts, Forwarder, Status, RowNum, Userid);
+                                            result = DAL_AccessLayer.ShipmentInfo_Add(EQPID, EQPID, Vendor, Entity, Area, Model, DateTime.Parse(MIDate), DateTime.Parse(FCADate), Remarks, TradeTerm, Country, Mode, TempContol, Humidity, M3Val1, M3Val2, M3Val3, Permit, Esscorts, Forwarder, Status, RowNum, Userid);
                                             if (result.Record_Status == 1)
                                                 intNewRec = intNewRec + 1;
                                             if (result.Record_Status == 2)
@@ -896,7 +898,11 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/gettoolslist")]
-        public IEnumerable<ApplicationModel.MainToolsList> gettoolslist(string Area, string Vendor, string Fromdate, string Todate, string Search_keyword, int Page)
+        /**
+         * param name="Fromdate" - format of parameter yyyy-MM-ddTHH:mm:ss
+         * param name="Todate" - format of parameter yyyy-MM-ddTHH:mm:ss
+         */
+        public IEnumerable<ApplicationModel.MainToolsList> gettoolslist([Optional] string Area, [Optional] string Vendor, [Optional] DateTime? Fromdate, [Optional] DateTime? Todate, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -911,7 +917,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getexporttoolslist")]
-        public IEnumerable<ApplicationModel.MainToolsList> getexporttoolslist(string Area, string Vendor, string Fromdate, string Todate, string Search_keyword)
+        public IEnumerable<ApplicationModel.MainToolsList> getexporttoolslist(string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -927,7 +933,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getimportdetails")]
-        public IEnumerable<ApplicationModel.ImportDetails> getimportdetails(int Page, string Search_keyword)
+        public IEnumerable<ApplicationModel.ImportDetails> getimportdetails(int Page, [Optional] string Search_keyword)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -975,7 +981,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getshipmentdetailslist")]
-        public IEnumerable<ApplicationModel.ShipmentListDetails> getshipmentdetailslist(string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.ShipmentListDetails> getshipmentdetailslist([Optional] string Eqpid, [Optional] string TradeTerm, [Optional] string Country, [Optional] string Mode, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1091,6 +1097,7 @@ namespace BHSK_TMS_API.Controllers
 
             return Request.CreateResponse(HttpStatusCode.OK, Result1);
         }
+
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/updateconfiguration")]
@@ -1105,6 +1112,34 @@ namespace BHSK_TMS_API.Controllers
                 var UserId = identity.Name;
 
                 var result = DAL_AccessLayer.Configuration_Add_Update(configuration.Id, configuration.Name, configuration.Type, configuration.Value, 2, UserId);
+                if (result.StatusCode == 1)
+                    Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                else
+                    Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, Result1);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/deleteconfiguration")]
+        public HttpResponseMessage DeleteConfiguration([FromBody] ConfigurationDetails configuration)
+        {
+
+            string Result1;
+            try
+            {
+
+                var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+                var UserId = identity.Name;
+
+                var result = DAL_AccessLayer.Configuration_Delete(configuration.Id);
                 if (result.StatusCode == 1)
                     Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                 else
@@ -1180,7 +1215,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/updateshipmentdetails")]
-        public string  UpdateShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
+        public string UpdateShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
             String path;
             var result = (dynamic)null;
@@ -1235,10 +1270,38 @@ namespace BHSK_TMS_API.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/splitshipment")]
+        public HttpResponseMessage SplitShipment([FromBody] SplitShipment splitShipment)
+        {
+            string Result1;
+            try
+            {
+
+                var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+                var UserId = identity.Name;
+
+                var result = DAL_AccessLayer.ShipmentInfo_Split(splitShipment.Id, splitShipment.SplitNumCrates);
+                if (result.StatusCode == 1)
+                    Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                else
+                    Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, Result1);
+
+        }
+
+        [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getconfigurationdetails")]
  
-        public IEnumerable<ApplicationModel.ConfigurationDetails> getConfigurationDetails(string Name, string Type, string Value, string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.ConfigurationDetails> getConfigurationDetails([Optional] string Name, [Optional] string Type, [Optional] string Value, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;

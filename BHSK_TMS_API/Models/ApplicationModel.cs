@@ -286,6 +286,12 @@ namespace BHSK_TMS_API.ApplicationModel
    
     }
 
+    public class SplitShipment
+    {
+        public int Id { get; set; }
+        public int SplitNumCrates { get; set; }
+    }
+
     public class ShipmentDetails
     {
         public int Id { get; set; }
@@ -294,8 +300,8 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Vendor { get; set; }
         public string Entity { get; set; }
         public string Area { get; set; }
-        public string MIDate { get; set; }
-        public string FCADate { get; set; }
+        public DateTime MIDate { get; set; }
+        public DateTime FCADate { get; set; }
         public string Remarks { get; set; }
         public string TradeTerm { get; set; }
         public string Country { get; set; }
@@ -339,8 +345,8 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Entity { get; set; }
         public string Area { get; set; }
         public string Model { get; set; }
-        public string MIDate { get; set; }
-        public string FCADate { get; set; }
+        public DateTime MIDate { get; set; }
+        public DateTime FCADate { get; set; }
         public string Remarks { get; set; }
       
     }
@@ -367,7 +373,7 @@ namespace BHSK_TMS_API.ApplicationModel
     public class ImportDetails
     {
         public int ImportId { get; set; }
-        public string ImportDate { get; set; }
+        public DateTime ImportDate { get; set; }
         public string UserId { get; set; }
         public string Details { get; set; }
         public string Status { get; set; }
