@@ -459,7 +459,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static List<ApplicationModel.MainToolsList> GetMainToolsList(string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword, int Page, int Opt)
+        public static List<ApplicationModel.MainToolsList> GetMainToolsList(string UserId, string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword, int Page, int Opt)
         {
             try
             {
@@ -469,6 +469,7 @@ namespace BHSK_TMS_API
                     var result = conn.Query<ApplicationModel.MainToolsList>(
                             "sp_Get_MainToolsList_UMC_API", new
                             {
+                                @UserId = UserId,
                                 @Area = Area,
                                 @Vendor = Vendor,
                                 @FromDate = Fromdate,
