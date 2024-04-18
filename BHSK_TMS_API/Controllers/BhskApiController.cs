@@ -516,7 +516,6 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/addusers")]
         public HttpResponseMessage AddUsers([FromBody] UserInfoAdd UserInfoAdd)
         {
-            var Result1 = "";
             try
             {
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -524,17 +523,15 @@ namespace BHSK_TMS_API.Controllers
                 var encrptPw1 = Convert.ToString(Encrypt_Dll.EncryptDLL.enCrypt(UserInfoAdd.Password));
                 var result = DAL_AccessLayer.UserInfo_Add(UserInfoAdd.UserName, encrptPw1, UserInfoAdd.Role, UserInfoAdd.EmailId, UserInfoAdd.Contact, UserInfoAdd.Forwarder, UserInfoAdd.Workgroup, UserId);
                 if (result.StatusCode == 1)
-                    Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                    return Request.CreateResponse(HttpStatusCode.OK, "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}");
                 else
-                    Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}");
 
             }
             catch (Exception ex)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
-
-            return Request.CreateResponse(HttpStatusCode.OK, Result1);
         }
 
         [Authorize]
@@ -542,7 +539,6 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/updateuser")]
         public HttpResponseMessage UpdateUser([FromBody] UserInfo userInfo)
         {
-            string result1;
             try
             {
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -554,17 +550,15 @@ namespace BHSK_TMS_API.Controllers
                 }
                 var result = DAL_AccessLayer.UserInfo_Update(userInfo.UserName, encrptPw1, userInfo.Role, userInfo.EmailId, userInfo.Contact, userInfo.Forwarder);
                 if (result.StatusCode == 1)
-                    result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                    return Request.CreateResponse(HttpStatusCode.OK, "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}");
                 else
-                    result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}");
 
             }
             catch (Exception ex)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
-
-            return Request.CreateResponse(HttpStatusCode.OK, result1);
         }
 
         [Authorize]
@@ -645,13 +639,13 @@ namespace BHSK_TMS_API.Controllers
                     }
                     else
                     {
-                        message = "Something Went Wrong!, The Excel file uploaded has fiald.";
+                        throw new Exception("Something Went Wrong!, The Excel file uploaded has failed.");
                     }
 
                 }
                 else
                 {
-                    message = "File does not selected!, Please check it.";
+                    throw new Exception("File is not selected!, Please check it.");
                 }
 
                 return message;
@@ -1207,6 +1201,7 @@ namespace BHSK_TMS_API.Controllers
             try
             {
                 string message = "";
+                string[] filenames = null;
 
                 if (shipmentDetails.Documents != null)
                 {
@@ -1215,9 +1210,9 @@ namespace BHSK_TMS_API.Controllers
                         String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
                         File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
                     }
+                    filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
                 }
 
-                string[] filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
 
                 if (Userid != "")
                 {
@@ -1253,6 +1248,7 @@ namespace BHSK_TMS_API.Controllers
             try
             {
                 string message = "";
+                string[] filenames = null;
 
                 if (shipmentDetails.Documents != null)
                 {
@@ -1261,9 +1257,9 @@ namespace BHSK_TMS_API.Controllers
                         String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
                         File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
                     }
+                    filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
                 }
 
-                string[] filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
                 if (UserId != "")
                 {
                     result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, UserId);
