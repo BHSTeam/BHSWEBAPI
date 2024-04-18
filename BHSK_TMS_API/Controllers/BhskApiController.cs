@@ -37,13 +37,13 @@ namespace BHSK_TMS_API.Controllers
 
         [Authorize]
         [Route("api/bhskapi/EmployeeDutyDateTimeUpdate")]
-        public IHttpActionResult EmployeeDutyDateTimeUpdate(string EmployeeCode, string EmployeeName, DateTime DutyIn_Datetime, DateTime DutyOut_Datetime, float DutyIn_Latitude, float DutyIn_Longitude,float DutyOut_Latitude, float DutyOut_Longitude)
+        public IHttpActionResult EmployeeDutyDateTimeUpdate(string EmployeeCode, string EmployeeName, DateTime DutyIn_Datetime, DateTime DutyOut_Datetime, float DutyIn_Latitude, float DutyIn_Longitude, float DutyOut_Latitude, float DutyOut_Longitude)
         {
             var Result1 = "";
             try
             {
                 var result = DAL_AccessLayer.Employee_Duty_IN_OUT_Update(EmployeeCode, EmployeeName, DutyIn_Datetime, DutyOut_Datetime, DutyIn_Latitude, DutyIn_Longitude, DutyOut_Latitude, DutyOut_Longitude);
-                if (result.StatusCode==1)
+                if (result.StatusCode == 1)
                     Result1 = "{Message:Successfully updated}";
                 else
                     Result1 = "{Message:The request is invalid}";
@@ -52,10 +52,10 @@ namespace BHSK_TMS_API.Controllers
             {
                 Result1 = "{Message:The request is invalid}";
             }
-           
+
             return Ok(Result1);
         }
-    
+
         [Authorize]
         [Route("api/bhskapi/DutyDateTimeUpdate")]
         public IHttpActionResult DutyDateTimeUpdate(JObject objData)
@@ -169,7 +169,7 @@ namespace BHSK_TMS_API.Controllers
                 string Str_Lat = HttpContext.Current.Request.Form["Str_Lat"];
                 string Str_Long = HttpContext.Current.Request.Form["Str_Long"];
                 string Str_Loc = HttpContext.Current.Request.Form["Str_Loc"];
-                string Str_PhotoSize = HttpContext.Current.Request.Form["Str_PhotoSize"]; 
+                string Str_PhotoSize = HttpContext.Current.Request.Form["Str_PhotoSize"];
 
                 //Fetch the File Name.
                 fileName = HttpContext.Current.Request.Form["fileName"] + Path.GetExtension(postedFile.FileName);
@@ -185,7 +185,7 @@ namespace BHSK_TMS_API.Controllers
                 //Send OK Response to Client.
                 return Request.CreateResponse(HttpStatusCode.OK, ResponseMsg);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest, "{recived:,file_Name:" + ex.Message + "}");
             }
@@ -201,7 +201,7 @@ namespace BHSK_TMS_API.Controllers
 
         [Authorize]
         [Route("api/bhskapi/Login")]
-        public IHttpActionResult Login(string Userid,string Password)
+        public IHttpActionResult Login(string Userid, string Password)
         {
             var Result1 = "{JobNo:101,Response:Unsuccessful},";
             return Ok(Result1);
@@ -224,7 +224,7 @@ namespace BHSK_TMS_API.Controllers
         }
 
         // POST api/<controller>
-        public void Post([FromBody]string value)
+        public void Post([FromBody] string value)
         {
         }
 
@@ -232,9 +232,9 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/GetLogin")]
         public HttpResponseMessage GetLogin(string Userid, string Password)
         {
-           
+
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
-            if (Userid =="test" && Password == "test")
+            if (Userid == "test" && Password == "test")
             {
                 response.StatusCode = HttpStatusCode.OK;
                 response.ReasonPhrase = string.Format("Sucess");
@@ -249,9 +249,9 @@ namespace BHSK_TMS_API.Controllers
             }
 
         }
-        
-       
-    //Astar API
+
+
+        //Astar API
 
         [Authorize]
         [HttpGet]
@@ -259,11 +259,10 @@ namespace BHSK_TMS_API.Controllers
         public IEnumerable<ApplicationModel.JobRequests> JobRequests(string targeted_pickup_datetime, string targeted_delivery_datetime, string current_job_status)
         {
             List<ApplicationModel.JobRequests> lstMilestoneDetails = new List<ApplicationModel.JobRequests>();
-            
-            var result = (dynamic)null;
-            int chk = 0;
 
-            if (targeted_pickup_datetime != "" && targeted_delivery_datetime != "" )
+            var result = (dynamic)null;
+
+            if (targeted_pickup_datetime != "" && targeted_delivery_datetime != "")
             {
                 result = DAL_AccessLayer.Get_JobRequests_aStar(targeted_pickup_datetime, targeted_delivery_datetime, current_job_status).ToList();
             }
@@ -277,7 +276,6 @@ namespace BHSK_TMS_API.Controllers
             List<ApplicationModel.JobRequests> lstMilestoneDetails = new List<ApplicationModel.JobRequests>();
 
             var result = (dynamic)null;
-            int chk = 0;
 
             result = DAL_AccessLayer.Get_JobRequests_aStarWithoutPara().ToList();
             return result;
@@ -291,7 +289,6 @@ namespace BHSK_TMS_API.Controllers
             List<ApplicationModel.PrimeMoversInfo> lstMilestoneDetails = new List<ApplicationModel.PrimeMoversInfo>();
 
             var result = (dynamic)null;
-            int chk = 0;
 
             if (Param1 != "")
             {
@@ -307,7 +304,6 @@ namespace BHSK_TMS_API.Controllers
             List<ApplicationModel.LorryInfo> lstMilestoneDetails = new List<ApplicationModel.LorryInfo>();
 
             var result = (dynamic)null;
-            int chk = 0;
 
             if (Param1 != "")
             {
@@ -323,7 +319,7 @@ namespace BHSK_TMS_API.Controllers
             List<ApplicationModel.TrailerInfo> lstMilestoneDetails = new List<ApplicationModel.TrailerInfo>();
 
             var result = (dynamic)null;
-        
+
             if (Param1 != "")
             {
                 result = DAL_AccessLayer.Get_TrailerView_aStar(3, Param1).ToList();
@@ -338,7 +334,7 @@ namespace BHSK_TMS_API.Controllers
             List<ApplicationModel.DriversInfo> lstMilestoneDetails = new List<ApplicationModel.DriversInfo>();
 
             var result = (dynamic)null;
-          
+
             if (Param1 != "")
             {
                 result = DAL_AccessLayer.Get_DriversView_aStar(4, Param1).ToList();
@@ -354,7 +350,7 @@ namespace BHSK_TMS_API.Controllers
             List<ApplicationModel.CustomerInfo> lstMilestoneDetails = new List<ApplicationModel.CustomerInfo>();
 
             var result = (dynamic)null;
-         
+
             if (Param1 != "")
             {
                 result = DAL_AccessLayer.Get_CustomersView_aStar(5, Param1).ToList();
@@ -366,12 +362,12 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/ts_job_status_counts")]
-        public IEnumerable<ApplicationModel.JobStatusActivities> ts_job_status_counts(string startTime,string endTime,string workgroup)
+        public IEnumerable<ApplicationModel.JobStatusActivities> ts_job_status_counts(string startTime, string endTime, string workgroup)
         {
             List<ApplicationModel.JobStatusActivities> lstMilestoneDetails = new List<ApplicationModel.JobStatusActivities>();
 
             var result = (dynamic)null;
-        
+
             if (startTime != "" && endTime != "" && workgroup != "")
             {
                 result = DAL_AccessLayer.Get_Jobactivities_aStar(startTime, endTime, workgroup).ToList();
@@ -380,7 +376,7 @@ namespace BHSK_TMS_API.Controllers
         }
 
         // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody] string value)
         {
         }
 
@@ -398,9 +394,9 @@ namespace BHSK_TMS_API.Controllers
         {
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var UserId = identity.Name;
-            
+
             var result = (dynamic)null;
-            if (UserId != "" )
+            if (UserId != "")
             {
                 result = DAL_AccessLayer.UserList(UserId, "", "", "", "", 0, 1);
             }
@@ -422,13 +418,13 @@ namespace BHSK_TMS_API.Controllers
                 var encrptPw = Convert.ToString(Encrypt_Dll.EncryptDLL.enCrypt(Password));
                 if (Userid != "" && Password != "")
                 {
-                    result = DAL_AccessLayer.Change_Reset_Password(Userid, encrptPw,"",1);
+                    result = DAL_AccessLayer.Change_Reset_Password(Userid, encrptPw, "", 1);
                     if (result.StatusCode == 1)
                         Result1 = "{ErrCode:1,ErrMsg:Password Successfully Reseted}";
                     else
                         Result1 = "{ErrCode:-1,ErrMsg:User information is invalid}";
                 }
-                
+
             }
             catch
             {
@@ -444,8 +440,8 @@ namespace BHSK_TMS_API.Controllers
         public IHttpActionResult forgotpassword(string Userid)
         {
             var Result1 = (dynamic)null;
-           // var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-           // var Userid = identity.Name;
+            // var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            // var Userid = identity.Name;
 
             try
             {
@@ -454,7 +450,7 @@ namespace BHSK_TMS_API.Controllers
                 string TempEncryptPwd = Convert.ToString(Encrypt_Dll.EncryptDLL.enCrypt(TempPassword));
 
                 var result = (dynamic)null;
-                 if (Userid != "" && TempEncryptPwd != "")
+                if (Userid != "" && TempEncryptPwd != "")
                 {
                     result = DAL_AccessLayer.ForgotPasswordVerification(Userid, TempPassword, TempEncryptPwd);
                     if (result.ErrCode == 0)
@@ -499,9 +495,9 @@ namespace BHSK_TMS_API.Controllers
                 var encrptPw2 = Convert.ToString(Encrypt_Dll.EncryptDLL.enCrypt(NewPassword));
                 if (Userid != "" && OldPassword != "" && NewPassword != "")
                 {
-                    result = DAL_AccessLayer.Change_Reset_Password(Userid, encrptPw1, encrptPw2 ,2);
+                    result = DAL_AccessLayer.Change_Reset_Password(Userid, encrptPw1, encrptPw2, 2);
                     if (result.StatusCode == 1)
-                        Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg +"}";
+                        Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                     else
                         Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
                 }
@@ -513,7 +509,7 @@ namespace BHSK_TMS_API.Controllers
 
             return Ok(Result1);
         }
-       
+
 
         [Authorize]
         [HttpPost]
@@ -521,7 +517,7 @@ namespace BHSK_TMS_API.Controllers
         public HttpResponseMessage addusers([FromBody] UserInfoAdd UserInfoAdd)
         {
             List<UserInfoAdd> lsusers = new List<UserInfoAdd>();
-            var Result1 ="";
+            var Result1 = "";
             try
             {
                 string UserName = UserInfoAdd.UserName;
@@ -538,7 +534,7 @@ namespace BHSK_TMS_API.Controllers
                     Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                 else
                     Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
-                
+
             }
             catch (Exception ex)
             {
@@ -551,16 +547,16 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getuserlist")]
-        public IEnumerable<ApplicationModel.UserInfo> getUserList([Optional] string UserName,[Optional] string EmailId,[Optional] string Contact,[Optional] string Workgroup,[Optional] string Search_keyword,int Page)
+        public IEnumerable<ApplicationModel.UserInfo> getUserList([Optional] string UserName, [Optional] string EmailId, [Optional] string Contact, [Optional] string Workgroup, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var Userid = identity.Name;
             List<ApplicationModel.UserInfo> lstUserList = new List<ApplicationModel.UserInfo>();
             var result = (dynamic)null;
-            if (Userid != "" )
+            if (Userid != "")
             {
-                result = DAL_AccessLayer.UserList(UserName, EmailId, Contact, Workgroup, Search_keyword, Page,2);
+                result = DAL_AccessLayer.UserList(UserName, EmailId, Contact, Workgroup, Search_keyword, Page, 2);
             }
             return result;
         }
@@ -577,13 +573,12 @@ namespace BHSK_TMS_API.Controllers
             try
             {
                 string message = "";
-                HttpResponseMessage ResponseMessage = null;
                 var httpRequest = HttpContext.Current.Request;
                 HttpPostedFile Inputfile = null;
                 Stream FileStream = null;
                 if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
                 {
-                    for (int f=0;f<= httpRequest.Files.Count-1;f++)
+                    for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
                     {
                         Inputfile = httpRequest.Files[f];
                         FileStream = Inputfile.InputStream;
@@ -610,7 +605,7 @@ namespace BHSK_TMS_API.Controllers
                 {
                     message = "File does not selected!, Please check it.";
                 }
-               
+
                 return message;
             }
             catch (Exception)
@@ -630,7 +625,6 @@ namespace BHSK_TMS_API.Controllers
             int intNewRec = 0;
             int intUptRec = 0;
             int intFail = 0;
-            int intRows = 0;
             var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var Userid = identity.Name;
@@ -644,7 +638,7 @@ namespace BHSK_TMS_API.Controllers
                 string conStr = "";
                 string RowErrors = "";
                 DataSet dsexcelRecords1 = new DataSet();
-                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() !="")
+                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
                 {
                     Inputfile = httpRequest.Files[0];
                     FileStream = Inputfile.InputStream;
@@ -669,8 +663,8 @@ namespace BHSK_TMS_API.Controllers
                             message = "The file format is not supported.";
                             var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
                         }
-                            
-                        if(conStr !="")
+
+                        if (conStr != "")
                         {
                             conStr = String.Format(conStr, path, "YES");
                             OleDbConnection connExcel = new OleDbConnection(conStr);
@@ -678,7 +672,7 @@ namespace BHSK_TMS_API.Controllers
                             OleDbDataAdapter oda = new OleDbDataAdapter();
                             DataTable dsexcelRecords = new DataTable();
 
-                            
+
                             cmdExcel.Connection = connExcel;
                             //Get the name of First Sheet
                             connExcel.Open();
@@ -719,7 +713,7 @@ namespace BHSK_TMS_API.Controllers
                                     string Country = "";
                                     string Mode = "";
                                     string MIDate = "";
-                                    string FCADate= "";
+                                    string FCADate = "";
                                     string TempContol = "0";
                                     string Humidity = "0";
                                     string M3Val1 = "";
@@ -805,7 +799,7 @@ namespace BHSK_TMS_API.Controllers
                                             }
 
                                         }
-                                        if (ChkRow==1)
+                                        if (ChkRow == 1)
                                         {
                                             RowNum = RowNum + 1;
                                             string inputString = EQPID + "," + EQPID + "," + Vendor + "," + Entity + "," + Area + "," + Model + "," + MIDate + "," + FCADate + "," + Remarks + "," + TradeTerm + "," + Country + "," + Mode + "," + TempContol + "," + Humidity + "," + M3Val1 + "," + M3Val2 + "," + M3Val3 + "," + Permit + "," + Esscorts + "," + Forwarder + "," + Status + "," + Userid;
@@ -872,7 +866,7 @@ namespace BHSK_TMS_API.Controllers
                         message = "Invalid File.";
                         var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
                     }
-                       
+
                 }
                 else
                 {
@@ -880,13 +874,13 @@ namespace BHSK_TMS_API.Controllers
                     var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
                     ResponseMessage = Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
-                  
-               return message;
+
+                return message;
 
             }
             catch (Exception)
             {
-               
+
                 //if (System.IO.File.Exists(path))
                 //{
                 //    System.IO.File.Delete(path);
@@ -949,7 +943,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getImporterrordetails")]
-        public IEnumerable<ApplicationModel.ImportErrorDetails> getImporterrordetails(int ImportId,int Page)
+        public IEnumerable<ApplicationModel.ImportErrorDetails> getImporterrordetails(int ImportId, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1004,7 +998,7 @@ namespace BHSK_TMS_API.Controllers
             var result = (dynamic)null;
             if (Userid != "")
             {
-                result = DAL_AccessLayer.GetShipmentDetailsList(Eqpid, TradeTerm, Country, Mode, Search_keyword, 0, 2);
+                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, Eqpid, TradeTerm, Country, Mode, Search_keyword, 0, 2);
             }
             return result;
         }
@@ -1075,15 +1069,15 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/addconfiguration")]
         public HttpResponseMessage AddConfiguration([FromBody] ConfigurationDetails configuration)
         {
-     
+
             var Result1 = "";
             try
             {
-               
+
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
                 var UserId = identity.Name;
-            
-                var result = DAL_AccessLayer.Configuration_Add_Update(0, configuration.Name, configuration.Type, configuration.Value, 1,UserId);
+
+                var result = DAL_AccessLayer.Configuration_Add_Update(0, configuration.Name, configuration.Type, configuration.Value, 1, UserId);
                 if (result.StatusCode == 1)
                     Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                 else
@@ -1169,7 +1163,7 @@ namespace BHSK_TMS_API.Controllers
                 var httpRequest = HttpContext.Current.Request;
                 HttpPostedFile Inputfile = null;
                 Stream FileStream = null;
-                string[] filenames;
+                string[] filenames = null;
 
                 if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
                 {
@@ -1205,7 +1199,7 @@ namespace BHSK_TMS_API.Controllers
                 throw;
             }
 
-           
+
         }
 
         [Authorize]
@@ -1223,7 +1217,7 @@ namespace BHSK_TMS_API.Controllers
                 var httpRequest = HttpContext.Current.Request;
                 HttpPostedFile Inputfile = null;
                 Stream FileStream = null;
-                string[] filenames;
+                string[] filenames = null;
 
                 if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
                 {
@@ -1291,7 +1285,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getconfigurationdetails")]
- 
+
         public IEnumerable<ApplicationModel.ConfigurationDetails> getConfigurationDetails([Optional] string Name, [Optional] string Type, [Optional] string Value, [Optional] string Search_keyword, int Page)
         {
 
@@ -1380,7 +1374,7 @@ namespace BHSK_TMS_API.Controllers
                             }
                             DataSet ds = new DataSet();
                             ds.ReadXml(new XmlNodeReader(xmlDocument1));
-                            for(int r1=0;r1<= ds.Tables[0].Rows.Count-1;r1++)
+                            for (int r1 = 0; r1 <= ds.Tables[0].Rows.Count - 1; r1++)
                             {
                                 idInstance = ds.Tables[0].Rows[r1][0].ToString();
                                 wid = ds.Tables[0].Rows[r1][1].ToString();
@@ -1417,7 +1411,7 @@ namespace BHSK_TMS_API.Controllers
                             ds.ReadXml(new XmlNodeReader(xmlDocument2));
                             for (int r1 = 0; r1 <= ds.Tables[0].Rows.Count - 1; r1++)
                             {
-                                chatId = ds.Tables[0].Rows[r1][0].ToString(); 
+                                chatId = ds.Tables[0].Rows[r1][0].ToString();
                                 chatName = ds.Tables[0].Rows[r1][1].ToString();
                                 sender = ds.Tables[0].Rows[r1][2].ToString();
                                 senderName = ds.Tables[0].Rows[r1][3].ToString();
@@ -1442,11 +1436,11 @@ namespace BHSK_TMS_API.Controllers
                             }
                             DataSet ds = new DataSet();
                             ds.ReadXml(new XmlNodeReader(xmlDocument3));
-                            if (ds.Tables[0].Rows.Count>0)
+                            if (ds.Tables[0].Rows.Count > 0)
                             {
                                 typeMessage = ds.Tables[0].Rows[0][0].ToString();
                                 string MessageBody = ds.Tables[0].Rows[0][1].ToString();
-                                if (typeMessage== "extendedTextMessage")
+                                if (typeMessage == "extendedTextMessage")
                                 {
                                     dynamic jsonObject4 = JsonConvert.DeserializeObject(MessageBody.ToString());
 
@@ -1469,13 +1463,13 @@ namespace BHSK_TMS_API.Controllers
                                         text = ds1.Tables[0].Rows[r1][0].ToString();
                                         description = ds1.Tables[0].Rows[r1][1].ToString();
                                         title = ds1.Tables[0].Rows[r1][2].ToString();
-                                      
-                                    }  
+
+                                    }
                                 }
 
-                               
+
                             }
-                            
+
                         }
                         else if (xmlEqnode[i].ChildNodes.Item(j).Name.Trim() == "senderData")
                         {
@@ -1487,17 +1481,17 @@ namespace BHSK_TMS_API.Controllers
                         }
                     }
                 }
-                 dynamic response = JsonConvert.DeserializeObject(jsonData.ToString());
+                dynamic response = JsonConvert.DeserializeObject(jsonData.ToString());
 
                 JArray paramsArray = (JArray)JToken.FromObject(response);
 
                 foreach (JToken param in paramsArray)
                 {
-                   
+
                 }
                 DataSet myDataSet = JsonConvert.DeserializeObject<DataSet>(jsonData.ToString());
 
-                 
+
                 string strvalue = "";
                 for (int row = 0; row <= myDataSet.Tables[0].Rows.Count - 1; row++)
                 {
@@ -1526,9 +1520,9 @@ namespace BHSK_TMS_API.Controllers
                     }
                     trgArray.Add(cleanRow);
                 }
-             
+
                 DataTable dataTable1 = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(trgArray));
-               
+
 
                 // Deserialize the received JSON data into a strongly-typed object
                 var receivedData = JsonConvert.DeserializeObject<GPSData>(jsonData.ToString());
@@ -1595,7 +1589,7 @@ namespace BHSK_TMS_API.Controllers
                         {
                             textMessage = sdata.Split(',')[i].Split(':')[1].ToString();
                         }
-                        final = idInstance + '~' + wid + '~' + timestamp + '~' + idMessage + '~' + chatId + '~' + chatName + '~' +  senderName + '~' + typeMessage + '~' + textMessage;
+                        final = idInstance + '~' + wid + '~' + timestamp + '~' + idMessage + '~' + chatId + '~' + chatName + '~' + senderName + '~' + typeMessage + '~' + textMessage;
                     }
                 }
                 StreamWriter sw = new StreamWriter("D:\\mGPS\\gpsdata.txt");
@@ -1626,6 +1620,6 @@ namespace BHSK_TMS_API.Controllers
             }
         }
 
-        
+
     }
 }
