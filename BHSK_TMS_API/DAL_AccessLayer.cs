@@ -459,7 +459,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static List<ApplicationModel.MainToolsList> GetMainToolsList(string UserId, string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword, int Page, int Opt)
+        public static List<ApplicationModel.MainToolsList> GetMainToolsList(string UserId, string Area, string Vendor, DateTime? FromDate, DateTime? ToDate, string Search_keyword, int Page, int Opt)
         {
             try
             {
@@ -472,8 +472,8 @@ namespace BHSK_TMS_API
                                 @UserId = UserId,
                                 @Area = Area,
                                 @Vendor = Vendor,
-                                @FromDate = Fromdate,
-                                @ToDate = Todate,
+                                @FromDate = FromDate,
+                                @ToDate = ToDate,
                                 @Search_keyword = Search_keyword,
                                 @Page = Page,
                                 @Opt = Opt
@@ -488,7 +488,7 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_Get_MainToolsList_UMC_API : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.ShipmentListDetails> GetShipmentDetailsList(string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page, int Opt)
+        public static List<ApplicationModel.ShipmentListDetails> GetShipmentDetailsList(string UserId, string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page, int Opt)
         {
             try
             {
@@ -498,6 +498,7 @@ namespace BHSK_TMS_API
                     var result = conn.Query<ApplicationModel.ShipmentListDetails>(
                             "sp_Get_ShipmentsList_UMC_API", new
                             {
+                                @UserId = UserId,
                                 @Eqpid = Eqpid,
                                 @TradeTerm = TradeTerm,
                                 @Country = Country,

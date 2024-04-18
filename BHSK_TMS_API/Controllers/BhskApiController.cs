@@ -895,7 +895,7 @@ namespace BHSK_TMS_API.Controllers
             }
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [Route("api/bhskapi/gettoolslist")]
         /**
@@ -989,7 +989,7 @@ namespace BHSK_TMS_API.Controllers
             var result = (dynamic)null;
             if (Userid != "")
             {
-                result = DAL_AccessLayer.GetShipmentDetailsList(Eqpid, TradeTerm, Country, Mode, Search_keyword, Page, 1);
+                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, Eqpid, TradeTerm, Country, Mode, Search_keyword, Page, 1);
             }
             return result;
         }
@@ -1169,10 +1169,11 @@ namespace BHSK_TMS_API.Controllers
                 var httpRequest = HttpContext.Current.Request;
                 HttpPostedFile Inputfile = null;
                 Stream FileStream = null;
-             
+                string[] filenames;
+
                 if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
                 {
-                    string[] filenames = new string[httpRequest.Files.Count];
+                    filenames = new string[httpRequest.Files.Count];
                     for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
                     {
                         Inputfile = httpRequest.Files[f];
@@ -1183,23 +1184,18 @@ namespace BHSK_TMS_API.Controllers
 
                         filenames[f] = Inputfile.FileName;
                     }
-                    if (Userid != "")
-                    {
-                        result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, Userid);
-                    }
-                    if (result.StatusCode == 1)
-                    {
-                        message = "The documents has been successfully uploaded.";
-                    }
-                    else
-                    {
-                        message = "Something Went Wrong!, The Excel file uploaded has fiald.";
-                    }
-
+                }
+                if (Userid != "")
+                {
+                    result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, Userid);
+                }
+                if (result.StatusCode == 1)
+                {
+                    message = "The shipment has been successfully added.";
                 }
                 else
                 {
-                    message = "File does not selected!, Please check it.";
+                    message = "Something Went Wrong!, The shipment creation has failed.";
                 }
 
                 return message;
@@ -1227,10 +1223,11 @@ namespace BHSK_TMS_API.Controllers
                 var httpRequest = HttpContext.Current.Request;
                 HttpPostedFile Inputfile = null;
                 Stream FileStream = null;
+                string[] filenames;
 
                 if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
                 {
-                    string[] filenames = new string[httpRequest.Files.Count];
+                    filenames = new string[httpRequest.Files.Count];
                     for (int f = 0; f <= httpRequest.Files.Count - 1; f++)
                     {
                         Inputfile = httpRequest.Files[f];
@@ -1241,24 +1238,18 @@ namespace BHSK_TMS_API.Controllers
 
                         filenames[f] = Inputfile.FileName;
                     }
-                    if (UserId != "")
-                    {
-                        result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, UserId);
-                        //result = DAL_AccessLayer.ShipmentInfo_CreateNew(EQPID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, Num_Crates, TotalVolume, Pickup_Planned, Pickup_Actual, FlightVesselNumber, AirShippingLine, FlightVessel_ETD, FlightVessel_ATD, Transit, Transit_ETA, Transit_ATA, Transit_ETD, Transit_ATD, Planned_SG_Arrival, Confirm_SG_Arrival, Actual_SG_Arrival, DocumentReady, CargoReady, Delayed, DelayedReason, Shock_Watch_Activated, filenames, Userid);
-                    }
-                    if (result.StatusCode == 1)
-                    {
-                        message = "The documents has been successfully uploaded.";
-                    }
-                    else
-                    {
-                        message = "Something Went Wrong!, The Excel file uploaded has fiald.";
-                    }
-
+                }
+                if (UserId != "")
+                {
+                    result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, UserId);
+                }
+                if (result.StatusCode == 1)
+                {
+                    message = "The shipment has been successfully updated.";
                 }
                 else
                 {
-                    message = "File does not selected!, Please check it.";
+                    message = "Something Went Wrong!, The shipment update has failed.";
                 }
 
                 return message;
