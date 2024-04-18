@@ -267,9 +267,11 @@ namespace BHSK_TMS_API.ApplicationModel
         public int Id { get; set; }
         public string UserName { get; set; }
         public string UserId { get; set; }
+        public string Password { get; set; }
         public string Role { get; set; }
         public string EmailId { get; set; }
         public string Contact { get; set; }
+        public string Forwarder { get; set; }
         public string Workgroup { get; set; }
         public string Createdby { get; set; }
     }
@@ -281,6 +283,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Role { get; set; }
         public string EmailId { get; set; }
         public string Contact { get; set; }
+        public string Forwarder { get; set; }
         public string Workgroup { get; set; }
         public string Createdby { get; set; }
    

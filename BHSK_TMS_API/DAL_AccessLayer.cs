@@ -612,7 +612,7 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_UMC_AttachementDetails : " + ex.Message);
             }
         }
-        public static cOutMessage UserInfo_Add(string UserName, string Password, string Roles, string EmailId, string Contact, string WorkGroup, string CreatedBy)
+        public static cOutMessage UserInfo_Add(string UserName, string Password, string Roles, string EmailId, string Contact, string Forwarder, string WorkGroup, string CreatedBy)
         {
             try
             {
@@ -628,9 +628,60 @@ namespace BHSK_TMS_API
                                 @Roles = Roles,
                                 @EmailId = EmailId,
                                 @Contact = Contact,
+                                @Forwarder = Forwarder,
                                 @WorkGroup = WorkGroup,
                                 @CreatedBy = CreatedBy
 
+                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" sp_UserInfo_Add_API : " + ex.Message);
+            }
+        }
+
+        public static cOutMessage UserInfo_Update(string UserName, string Password, string Roles, string EmailId, string Contact, string Forwarder)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    var result = conn.Query<cOutMessage>(
+                            "sp_UserInfo_Update_API", new
+                            {
+                                @UserName = UserName,
+                                @Password = Password,
+                                @Roles = Roles,
+                                @EmailId = EmailId,
+                                @Contact = Contact,
+                                @Forwarder = Forwarder,
+
+                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" sp_UserInfo_Add_API : " + ex.Message);
+            }
+        }
+
+        public static cOutMessage UserInfo_Delete(string UserName)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    var result = conn.Query<cOutMessage>(
+                            "sp_UserInfo_Delete_API", new
+                            {
+                                @UserName = UserName
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
                     return result;
                 }

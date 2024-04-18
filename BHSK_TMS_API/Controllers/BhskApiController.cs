@@ -390,7 +390,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getuserinfo")]
-        public IEnumerable<ApplicationModel.UserInfo> getuserinfo()
+        public IEnumerable<ApplicationModel.UserInfo> GetUserInfo()
         {
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var UserId = identity.Name;
@@ -483,7 +483,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/changepassword")]
-        public IHttpActionResult changepassword(string OldPassword, string NewPassword)
+        public IHttpActionResult ChangePassword(string OldPassword, string NewPassword)
         {
             var Result1 = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -514,22 +514,15 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/addusers")]
-        public HttpResponseMessage addusers([FromBody] UserInfoAdd UserInfoAdd)
+        public HttpResponseMessage AddUsers([FromBody] UserInfoAdd UserInfoAdd)
         {
-            List<UserInfoAdd> lsusers = new List<UserInfoAdd>();
             var Result1 = "";
             try
             {
-                string UserName = UserInfoAdd.UserName;
-                string password = UserInfoAdd.Password;
-                string Role = UserInfoAdd.Role;
-                string EmailId = UserInfoAdd.EmailId;
-                string Contact = UserInfoAdd.Contact;
-                string Workgroup = UserInfoAdd.Workgroup;
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
                 var UserId = identity.Name;
-                var encrptPw1 = Convert.ToString(Encrypt_Dll.EncryptDLL.enCrypt(password));
-                var result = DAL_AccessLayer.UserInfo_Add(UserName, encrptPw1, Role, EmailId, Contact, Workgroup, UserId);
+                var encrptPw1 = Convert.ToString(Encrypt_Dll.EncryptDLL.enCrypt(UserInfoAdd.Password));
+                var result = DAL_AccessLayer.UserInfo_Add(UserInfoAdd.UserName, encrptPw1, UserInfoAdd.Role, UserInfoAdd.EmailId, UserInfoAdd.Contact, UserInfoAdd.Forwarder, UserInfoAdd.Workgroup, UserId);
                 if (result.StatusCode == 1)
                     Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
                 else
@@ -542,6 +535,61 @@ namespace BHSK_TMS_API.Controllers
             }
 
             return Request.CreateResponse(HttpStatusCode.OK, Result1);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/updateuser")]
+        public HttpResponseMessage UpdateUser([FromBody] UserInfo userInfo)
+        {
+            string result1;
+            try
+            {
+                var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+                var UserId = identity.Name;
+                String encrptPw1 = null;
+                if (!String.IsNullOrEmpty(userInfo.Password))
+                {
+                    encrptPw1 = Convert.ToString(Encrypt_Dll.EncryptDLL.enCrypt(userInfo.Password));
+                }
+                var result = DAL_AccessLayer.UserInfo_Update(userInfo.UserName, encrptPw1, userInfo.Role, userInfo.EmailId, userInfo.Contact, userInfo.Forwarder);
+                if (result.StatusCode == 1)
+                    result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                else
+                    result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, result1);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/deleteuser")]
+        public HttpResponseMessage DeleteUser([FromBody] UserInfo userInfo)
+        {
+            string result1;
+            try
+            {
+                var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+                var UserId = identity.Name;
+                var result = DAL_AccessLayer.UserInfo_Delete(userInfo.UserName);
+                if (result.StatusCode == 1)
+                    result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                else
+                    result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, result1);
         }
 
         [Authorize]
