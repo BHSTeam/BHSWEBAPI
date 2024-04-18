@@ -527,7 +527,7 @@ namespace BHSK_TMS_API
                     var result = conn.Query<ApplicationModel.ImportDetails>(
                             "sp_Get_ImportFiles_UMC_API", new
                             {
-                                @ImportId = "",
+                                @ImportId = 0,
                                 @Page = Page,
                                 @Opt = Opt,
                                 @Search_keyword = Search_keyword
