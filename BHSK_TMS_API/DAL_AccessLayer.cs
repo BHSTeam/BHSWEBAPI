@@ -802,7 +802,7 @@ namespace BHSK_TMS_API
                                 @Delayed = Delayed,
                                 @DelayedReason = DelayedReason,
                                 @Shock_Watch_Activated = Shock_Watch_Activated,
-                                @AttachmentFile = String.Join(",", AttachementFiles),
+                                @AttachmentFiles = String.Join(",", AttachementFiles),
                                 @CreatedBy = CreatedBy
 
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
@@ -855,7 +855,7 @@ namespace BHSK_TMS_API
                                 @Delayed = Delayed,
                                 @DelayedReason = DelayedReason,
                                 @Shock_Watch_Activated = Shock_Watch_Activated,
-                                @AttachmentFile = String.Join(",", AttachementFiles),
+                                @AttachmentFiles = String.Join(",", AttachementFiles),
                                 @CreatedBy = CreatedBy,
                             }, commandType: CommandType.StoredProcedure).FirstOrDefault();
                     return result;
