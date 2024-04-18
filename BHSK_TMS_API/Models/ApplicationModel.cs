@@ -304,8 +304,8 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Vendor { get; set; }
         public string Entity { get; set; }
         public string Area { get; set; }
-        public DateTime MIDate { get; set; }
-        public DateTime FCADate { get; set; }
+        public DateTime? MIDate { get; set; }
+        public DateTime? FCADate { get; set; }
         public string Remarks { get; set; }
         public string TradeTerm { get; set; }
         public string Country { get; set; }
@@ -318,21 +318,21 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Forwarder { get; set; }
         public int TotalArea { get; set; }
         public int TotalVolume { get; set; }
-        public DateTime Pickup_Planned { get; set; }
-        public DateTime Pickup_Actual { get; set; }
+        public DateTime? Pickup_Planned { get; set; }
+        public DateTime? Pickup_Actual { get; set; }
         public string AirShippingLine { get; set; }
         public string FlightVesselNumber { get; set; }
-        public DateTime FlightVessel_ETD { get; set; }
-        public DateTime FlightVessel_ATD { get; set; }
+        public DateTime? FlightVessel_ETD { get; set; }
+        public DateTime? FlightVessel_ATD { get; set; }
         public string Transit { get; set; }
-        public DateTime Transit_ETA { get; set; }
-        public DateTime Transit_ATA { get; set; }
-        public DateTime Transit_ETD { get; set; }
-        public DateTime Transit_ATD { get; set; }
+        public DateTime? Transit_ETA { get; set; }
+        public DateTime? Transit_ATA { get; set; }
+        public DateTime? Transit_ETD { get; set; }
+        public DateTime? Transit_ATD { get; set; }
         public string MasterAWB { get; set; }
         public string HAWB { get; set; }
-        public DateTime Planned_SG_Arrival { get; set; }
-        public DateTime Actual_SG_Arrival { get; set; }
+        public DateTime? Planned_SG_Arrival { get; set; }
+        public DateTime? Actual_SG_Arrival { get; set; }
         public bool Delayed { get; set; }
         public string DelayedReason { get; set; }
         public bool Shock_Watch_Activated { get; set; }
