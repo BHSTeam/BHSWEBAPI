@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Dapper;
 using System.IO;
 using BHSK_TMS_API.ApplicationModel;
+using System.Web.Services.Description;
 namespace BHSK_TMS_API
 {
     public class DAL_AccessLayer
@@ -526,6 +527,7 @@ namespace BHSK_TMS_API
                     var result = conn.Query<ApplicationModel.ImportDetails>(
                             "sp_Get_ImportFiles_UMC_API", new
                             {
+                                @ImportId = "",
                                 @Page = Page,
                                 @Opt = Opt,
                                 @Search_keyword = Search_keyword
@@ -552,7 +554,8 @@ namespace BHSK_TMS_API
                             {
                                 @ImportId = ImportId,
                                 @Page = Page,
-                                @Opt = Opt
+                                @Opt = Opt,
+                                @Search_keyword = ""
                             }, commandType: CommandType.StoredProcedure).ToList();
 
                     return result;
