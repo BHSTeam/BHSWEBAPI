@@ -81,7 +81,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string required_trailer_axle_type { get; set; }
         public string required_number_of_axles { get; set; }
         public string job_time_sensitive_binary { get; set; }
-        public string  allow_co_load_binary { get; set; }
+        public string allow_co_load_binary { get; set; }
         public string allow_stacking_binary { get; set; }
         public string job_remarks { get; set; }
         public string current_job_status { get; set; }
@@ -91,7 +91,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string require_airport_pass { get; set; }
         public string required_lorry_size { get; set; }
         public string job_sub_category { get; set; }
-       
+
     }
 
     public class PrimeMoversInfo
@@ -110,7 +110,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public float prime_mover_current_location_longitude { get; set; }
         public float prime_mover_current_location_latitude { get; set; }
     }
-    
+
     public class DriversInfo
     {
         public string driver_id { get; set; }
@@ -124,7 +124,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string driver_category { get; set; }
 
 
-}
+    }
     public class CustomerInfo
     {
         public string customer_name { get; set; }
@@ -148,7 +148,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string lorry_id { get; set; }
         public string lorry_category { get; set; }
         public string lorry_size { get; set; }
-        public string lorry_type {get;set;}
+        public string lorry_type { get; set; }
         public string parking_location_postal_code { get; set; }
         public float parking_location_longitude { get; set; }
         public float parking_location_latitude { get; set; }
@@ -158,7 +158,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string lorry_current_milestone { get; set; }
         public string lorry_current_location_longitude { get; set; }
         public string lorry_current_location_latitude { get; set; }
-         
+
     }
     public class TrailerInfo
     {
@@ -226,7 +226,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string exception { get; set; }
         public string workgroup { get; set; }
         public string timestamp { get; set; }
-  
+
     }
 
     public class WhatsAppMessage
@@ -261,7 +261,7 @@ namespace BHSK_TMS_API.ApplicationModel
     {
         public int ErrCode { get; set; }
         public string ErrMsg { get; set; }
- 
+
     }
     public class UserInfo
     {
@@ -287,7 +287,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Forwarder { get; set; }
         public string Workgroup { get; set; }
         public string Createdby { get; set; }
-   
+
     }
 
     public class SplitShipment
@@ -360,7 +360,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime MIDate { get; set; }
         public DateTime FCADate { get; set; }
         public string Remarks { get; set; }
-      
+
     }
 
 
@@ -368,7 +368,7 @@ namespace BHSK_TMS_API.ApplicationModel
     {
         public int Id { get; set; }
         public string EQPID { get; set; }
-       public string TradeTerm { get; set; }
+        public string TradeTerm { get; set; }
         public string Country { get; set; }
         public string Mode { get; set; }
         public int NumCrates { get; set; }
@@ -379,7 +379,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Forwarder { get; set; }
 
 
- 
+
     }
 
     public class ImportDetails
