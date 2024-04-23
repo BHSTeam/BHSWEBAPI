@@ -765,6 +765,7 @@ namespace BHSK_TMS_API.Controllers
                                     string Esscorts = "0";
                                     string Forwarder = "0";
                                     string Status = "";
+                                    string PONumber = "";
 
                                     try
                                     {
@@ -828,6 +829,8 @@ namespace BHSK_TMS_API.Controllers
                                                     Forwarder = dsexcelRecords.Rows[row][col].ToString();
                                                 else if (colname == "Status" || colname == "Column20")
                                                     Status = dsexcelRecords.Rows[row][col].ToString();
+                                                else if (colname == "PO Number")
+                                                    PONumber = dsexcelRecords.Rows[row][col].ToString();
                                                 if (TempContol == "")
                                                     TempContol = "0";
                                                 if (Humidity == "")
@@ -845,7 +848,7 @@ namespace BHSK_TMS_API.Controllers
                                         {
                                             RowNum = RowNum + 1;
                                             string inputString = EQPID + "," + EQPID + "," + Vendor + "," + Entity + "," + Area + "," + Model + "," + MIDate + "," + FCADate + "," + Remarks + "," + TradeTerm + "," + Country + "," + Mode + "," + TempContol + "," + Humidity + "," + M3Val1 + "," + M3Val2 + "," + M3Val3 + "," + Permit + "," + Esscorts + "," + Forwarder + "," + Status + "," + Userid;
-                                            result = DAL_AccessLayer.ShipmentInfo_Add(EQPID, EQPID, Vendor, Entity, Area, Model, DateTime.Parse(MIDate), DateTime.Parse(FCADate), Remarks, TradeTerm, Country, Mode, TempContol, Humidity, M3Val1, M3Val2, M3Val3, Permit, Esscorts, Forwarder, Status, RowNum, Userid);
+                                            result = DAL_AccessLayer.ShipmentInfo_Add(PONumber, EQPID, EQPID, Vendor, Entity, Area, Model, DateTime.Parse(MIDate), DateTime.Parse(FCADate), Remarks, TradeTerm, Country, Mode, TempContol, Humidity, M3Val1, M3Val2, M3Val3, Permit, Esscorts, Forwarder, Status, RowNum, Userid);
                                             if (result.Record_Status == 1)
                                                 intNewRec = intNewRec + 1;
                                             if (result.Record_Status == 2)
@@ -938,7 +941,7 @@ namespace BHSK_TMS_API.Controllers
          * param name="Fromdate" - format of parameter yyyy-MM-ddTHH:mm:ss
          * param name="Todate" - format of parameter yyyy-MM-ddTHH:mm:ss
          */
-        public IEnumerable<ApplicationModel.MainToolsList> gettoolslist([Optional] string Area, [Optional] string Vendor, [Optional] DateTime? Fromdate, [Optional] DateTime? Todate, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.MainToolsList> GetToolsList([Optional] string Area, [Optional] string Vendor, [Optional] DateTime? Fromdate, [Optional] DateTime? Todate, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -953,7 +956,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getexporttoolslist")]
-        public IEnumerable<ApplicationModel.MainToolsList> getexporttoolslist(string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword)
+        public IEnumerable<ApplicationModel.MainToolsList> GetExportToolsList(string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -969,7 +972,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getimportdetails")]
-        public IEnumerable<ApplicationModel.ImportDetails> getimportdetails(int Page, [Optional] string Search_keyword)
+        public IEnumerable<ApplicationModel.ImportDetails> GetImportDetails(int Page, [Optional] string Search_keyword)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1017,7 +1020,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getshipmentdetailslist")]
-        public IEnumerable<ApplicationModel.ShipmentListDetails> getshipmentdetailslist([Optional] string Eqpid, [Optional] string TradeTerm, [Optional] string Country, [Optional] string Mode, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.ShipmentDetails> GetShipmentDetailsList([Optional] string Eqpid, [Optional] string TradeTerm, [Optional] string Country, [Optional] string Mode, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1029,6 +1032,81 @@ namespace BHSK_TMS_API.Controllers
             }
             return result;
         }
+
+        [Authorize]
+        [HttpGet]
+        [Route("api/bhskapi/getdamagedetails")]
+        public IEnumerable<DamageDetails> GetDamageDetails(int ShipmentId)
+        {
+
+            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var Userid = identity.Name;
+            var result = (dynamic)null;
+            if (Userid != "")
+            {
+                result = DAL_AccessLayer.GetDamageDetails(ShipmentId);
+            }
+            return result;
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/adddamagedetails")]
+        public IHttpActionResult AddDamageDetails(DamageDetails damageDetails)
+        {
+
+            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var Userid = identity.Name;
+            if (Userid != "")
+            {
+                string baseUrl = Url.Request.RequestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+
+                if (damageDetails.DamagePhotos != null)
+                {
+                    foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
+                    {
+                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + damagePhotos.FileName);
+                        File.WriteAllBytes(path, Convert.FromBase64String(damagePhotos.Data));
+                        damagePhotos.Photo_URL = baseUrl + "/UMC_Attachments/" + damagePhotos.FileName;
+                    }
+                }
+
+
+                DAL_AccessLayer.AddDamageDetails(damageDetails);
+            }
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/updatedamagedetails")]
+        public IHttpActionResult UpdateDamageDetails(DamageDetails damageDetails)
+        {
+
+            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var Userid = identity.Name;
+            if (Userid != "")
+            {
+                DAL_AccessLayer.UpdateDamageDetails(damageDetails);
+            }
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/bhskapi/deldamagedetails")]
+        public IHttpActionResult DelDamageDetails(DamageDetails damageDetails)
+        {
+
+            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var Userid = identity.Name;
+            if (Userid != "")
+            {
+                DAL_AccessLayer.DeleteDamageDetails(damageDetails);
+            }
+            return Ok();
+        }
+
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getexportshipmentdetailslist")]
@@ -1205,7 +1283,7 @@ namespace BHSK_TMS_API.Controllers
 
                 if (shipmentDetails.Documents != null)
                 {
-                    foreach (Document document in shipmentDetails.Documents)
+                    foreach (Attachment document in shipmentDetails.Documents)
                     {
                         String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
                         File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
@@ -1216,7 +1294,7 @@ namespace BHSK_TMS_API.Controllers
 
                 if (Userid != "")
                 {
-                    result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, Userid);
+                    result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, false, filenames, Userid);
                     if (result.StatusCode == 1)
                     {
                         message = "The shipment has been successfully added.";
@@ -1252,7 +1330,7 @@ namespace BHSK_TMS_API.Controllers
 
                 if (shipmentDetails.Documents != null)
                 {
-                    foreach (Document document in shipmentDetails.Documents)
+                    foreach (Attachment document in shipmentDetails.Documents)
                     {
                         String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
                         File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
@@ -1262,7 +1340,7 @@ namespace BHSK_TMS_API.Controllers
 
                 if (UserId != "")
                 {
-                    result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, shipmentDetails.Shock_Watch_Activated, filenames, UserId);
+                    result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, false, filenames, UserId);
                     if (result.StatusCode == 1)
                     {
                         message = "The shipment has been successfully updated.";

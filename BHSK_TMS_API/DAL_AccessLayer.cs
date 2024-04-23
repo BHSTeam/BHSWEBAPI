@@ -9,6 +9,11 @@ using Dapper;
 using System.IO;
 using BHSK_TMS_API.ApplicationModel;
 using System.Web.Services.Description;
+using ExcelDataReader.Log;
+using System.Xml.Linq;
+using System.Web.UI.WebControls;
+using System.Collections.ObjectModel;
+using Newtonsoft.Json.Linq;
 namespace BHSK_TMS_API
 {
     public class DAL_AccessLayer
@@ -489,14 +494,14 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_Get_MainToolsList_UMC_API : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.ShipmentListDetails> GetShipmentDetailsList(string UserId, string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page, int Opt)
+        public static List<ApplicationModel.ShipmentDetails> GetShipmentDetailsList(string UserId, string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page, int Opt)
         {
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
-                    var result = conn.Query<ApplicationModel.ShipmentListDetails>(
+                    List<ShipmentDetails> result = conn.Query<ApplicationModel.ShipmentDetails>(
                             "sp_Get_ShipmentsList_UMC_API", new
                             {
                                 @UserId = UserId,
@@ -509,6 +514,14 @@ namespace BHSK_TMS_API
                                 @Opt = Opt
                             }, commandType: CommandType.StoredProcedure).ToList();
 
+                    foreach (ShipmentDetails item in result) {
+                        item.Documents = new Collection<Attachment>(conn.Query<Attachment>("SELECT * FROM UMC_AttachmentDetails WHERE Shipment_Id=" + item.Id).ToList());
+                        item.Damages = new Collection<DamageDetails>(conn.Query<DamageDetails>("SELECT * FROM UMC_Damages WHERE Shipment_Id=" + item.Id).ToList());
+                        foreach (DamageDetails damageDetails in item.Damages)
+                        {
+                            damageDetails.DamagePhotos = new Collection<DamagePhotos>(conn.Query<DamagePhotos>("SELECT * FROM UMC_DamagePhotos WHERE Damage_Id=" + damageDetails.Id).ToList());
+                        }
+                    }
                     return result;
                 }
             }
@@ -517,6 +530,90 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_Get_ShipmentsList_UMC_API : " + ex.Message);
             }
         }
+
+        public static List<DamageDetails> GetDamageDetails(int Shipment_Id)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+                    List<DamageDetails> result = conn.Query<DamageDetails>("SELECT * FROM UMC_Damages WHERE Shipment_Id=@ShipmentID", new { ShipmentId = Shipment_Id }).ToList();
+
+                    foreach (DamageDetails damageDetails in result)
+                    {
+                        damageDetails.DamagePhotos = new Collection<DamagePhotos>(conn.Query<DamagePhotos>("SELECT * FROM UMC_DamagePhotos WHERE Damage_Id=" + damageDetails.Id).ToList());
+                    }
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" GetDamageDetails : " + ex.Message);
+            }
+        }
+
+        public static void AddDamageDetails(DamageDetails damageDetails)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    int damageId = (int)conn.ExecuteScalar("INSERT INTO UMC_Damages (CrateNum,Location,DamageType,Shipment_Id) OUTPUT INSERTED.ID VALUES (@CrateNum,@Location,@DamageType,@ShipmentID)", new { CrateNum = damageDetails.CrateNum, Location = damageDetails.Location, DamageType = damageDetails.DamageType, ShipmentID = damageDetails.Shipment_Id });
+
+                    foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
+                    {
+                        conn.Execute("INSERT INTO UMC_DamagePhotos (Damage_Id, Photo_URL, Uploaded_Date, UserId, FileName) VALUES (@Damage_Id, @Photo_URL, @Uploaded_Date, @UserId, @FileName)", new { Damage_Id = damageId, Photo_URL = damagePhotos.Photo_URL, Uploaded_Date = damagePhotos.Uploaded_Date, UserId = damagePhotos.UserId, FileName = damagePhotos.FileName });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" AddDamageDetails : " + ex.Message);
+            }
+        }
+
+        public static void UpdateDamageDetails(DamageDetails damageDetails)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    conn.Execute("UPDATE UMC_Damages SET CrateNum=@CrateNum,Location=@Location,DamageType=@DamageType WHERE Id=@Id", damageDetails);
+
+                    foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
+                    {
+                        conn.Execute("UPDATE UMC_DamagePhotos SET Photo_URL=@Photo_URL,Uploaded_Date=@Uploaded_Date,UserId=@UserId,FileName=@FileName WHERE Id=@Id", damagePhotos);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("sp_Get_ShipmentsList_UMC_API : " + ex.Message);
+            }
+        }
+
+        public static void DeleteDamageDetails(DamageDetails damageDetails)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    conn.Execute("DELETE UMC_Damages WHERE Id=@Id", damageDetails);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("sp_Get_ShipmentsList_UMC_API : " + ex.Message);
+            }
+        }
+
         public static List<ApplicationModel.ImportDetails> GetImportDetails(int Page, string Search_keyword, int Opt)
         {
             try
@@ -772,7 +869,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_ImportDetails_Insert : " + ex.Message);
             }
         }
-        public static cOutMessage ShipmentInfo_Add(string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, DateTime MIDate, DateTime FCADate, string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status, int RowNumber, string CreatedBy)
+        public static cOutMessage ShipmentInfo_Add(string PONumber, string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, DateTime MIDate, DateTime FCADate, string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status, int RowNumber, string CreatedBy)
         {
             try
             {
@@ -783,6 +880,7 @@ namespace BHSK_TMS_API
                     var result = conn.Query<cOutMessage>(
                             "sp_UMC_ShipmentDetails_Insert_Update", new
                             {
+                                @PONumber = PONumber,
                                 @EQPID = EQPID,
                                 @VEQPID = VEQPID,
                                 @Vendor = Vendor,
