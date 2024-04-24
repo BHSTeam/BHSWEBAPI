@@ -727,6 +727,9 @@ namespace BHSK_TMS_API.Controllers
                                             case "VENDOR":
                                                 mainTool.Vendor = dataRow[col].ToString();
                                                 break;
+                                            case "VEQPID":
+                                                mainTool.VEQPID = dataRow[col].ToString();
+                                                break;
                                             case "EQPID":
                                             case "UMC EQID":
                                                 mainTool.EQPID = dataRow[col].ToString();
@@ -817,7 +820,7 @@ namespace BHSK_TMS_API.Controllers
                                         });
                                     }
                                 }
-                                // Validation of the row
+                                #region Validation of the row
                                 if (String.IsNullOrEmpty(shipment.Forwarder))
                                 {
                                     rowError = true;
@@ -835,8 +838,69 @@ namespace BHSK_TMS_API.Controllers
                                     {
                                         ImportId = importDetails.ImportId,
                                         RowNumber = row,
-                                        Details = "Validation error - Forwarder cannot be empty"
+                                        Details = "Validation error - EQID or EQPID cannot be empty"
                                     });
+                                }
+                                if (String.IsNullOrEmpty(mainTool.Vendor))
+                                {
+                                    rowError = true;
+                                    DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                    {
+                                        ImportId = importDetails.ImportId,
+                                        RowNumber = row,
+                                        Details = "Validation error - Vendor cannot be empty"
+                                    });
+                                }
+                                if (String.IsNullOrEmpty(mainTool.TradeTerm))
+                                {
+                                    rowError = true;
+                                    DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                    {
+                                        ImportId = importDetails.ImportId,
+                                        RowNumber = row,
+                                        Details = "Validation error - TradeTerm or Incoterm cannot be empty"
+                                    });
+                                }
+                                if (String.IsNullOrEmpty(shipment.Country))
+                                {
+                                    rowError = true;
+                                    DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                    {
+                                        ImportId = importDetails.ImportId,
+                                        RowNumber = row,
+                                        Details = "Validation error - Country cannot be empty"
+                                    });
+                                }
+                                if (String.IsNullOrEmpty(shipment.Mode))
+                                {
+                                    rowError = true;
+                                    DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                    {
+                                        ImportId = importDetails.ImportId,
+                                        RowNumber = row,
+                                        Details = "Validation error - Mode cannot be empty"
+                                    });
+                                }
+                                #endregion
+
+                                try
+                                {
+                                    DAL_AccessLayer.AddMainTool(mainTool);
+                                    DAL_AccessLayer.AddShipmentInfo(shipment);
+                                }
+                                catch (Exception ex)
+                                {
+                                    rowError = true;
+                                    DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                    {
+                                        ImportId = importDetails.ImportId,
+                                        RowNumber = row,
+                                        Details = " Unexpected Error : Please contact the Administrator. Error Message = " + ex.Message + ""
+                                    });
+                                }
+                                if (rowError)
+                                {
+                                    errors++;
                                 }
                             }
                         }
@@ -1553,7 +1617,7 @@ namespace BHSK_TMS_API.Controllers
                 }
 
 
-                DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails);
+                DAL_AccessLayer.AddShipmentInfo(shipmentDetails);
                 return "The shipment has been successfully added.";
             }
             catch (Exception)
@@ -1590,7 +1654,7 @@ namespace BHSK_TMS_API.Controllers
                     }
                 }
 
-                DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails);
+                DAL_AccessLayer.UpdateShipmentInfo(shipmentDetails);
 
                 return "The shipment has been successfully updated.";
             }

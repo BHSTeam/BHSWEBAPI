@@ -13,7 +13,6 @@ using System.Web.WebPages.Html;
 using System.Web;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Data.Linq;
 
 namespace BHSK_TMS_API.ApplicationModel
 {
@@ -299,6 +298,7 @@ namespace BHSK_TMS_API.ApplicationModel
     public class ShipmentDetails
     {
         public int Id { get; set; }
+        public int ToolId { get; set; }
         public string EQPID { get; set; }
         public string TradeTerm { get; set; }
         public string Country { get; set; }
@@ -345,6 +345,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime? Uploaded_Date { get; set; }
         public string FileName { get; set; }
         public string Data { get; set; }
+        public string UserId { get; set; }
     }
 
     public class MainTool
@@ -359,7 +360,10 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Area { get; set; }
         public string Model { get; set; }
         public DateTime MIDate { get; set; }
+        public DateTime Actual_MoveInDate { get; set; }
         public DateTime FCADate { get; set; }
+        public DateTime Previous_FCA_Changes { get; set; }
+        public DateTime CreateDateTime { get; set; }
         public string Remarks { get; set; }
         public bool Priorty { get; set; }
 
@@ -430,9 +434,9 @@ namespace BHSK_TMS_API.ApplicationModel
         public int Id { get; set; }
         public int Damage_Id { get; set; }
         public string Photo_URL { get; set; }
-        public string Uploaded_Date { get; set; }
+        public DateTime? Uploaded_Date { get; set; }
         public string FileName { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public string Data {  get; set; }
     }
 }
