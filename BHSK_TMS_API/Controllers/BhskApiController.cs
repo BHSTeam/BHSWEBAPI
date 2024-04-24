@@ -659,201 +659,6 @@ namespace BHSK_TMS_API.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("api/bhskapi/importtoollist")]
-        public void ImportToolList()
-        {
-            int newRecords = 0;
-            int UpdatedRecords = 0;
-            int errors = 0;
-
-            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var Userid = identity.Name;
-
-            ImportDetails importDetails = new ImportDetails
-            {
-                UserId = Userid,
-                ImportDate = DateTime.Now,
-                Details = "",
-                Status = "Processing"
-            };
-            DAL_AccessLayer.AddImport(importDetails);
-            try
-            {
-                var httpRequest = HttpContext.Current.Request;
-                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
-                {
-                    HttpPostedFile Inputfile = httpRequest.Files[0];
-
-                    Inputfile.SaveAs(HttpContext.Current.Server.MapPath("~/Excels/" + Inputfile.FileName));
-
-                    using (var reader = ExcelReaderFactory.CreateReader(Inputfile.InputStream))
-                    {
-                        DataSet dataSet = reader.AsDataSet();
-                        DataTable dataTable = dataSet.Tables["Tool and Accessories List"];
-                        object[] columns = null;
-                        for (int row = 0; row < dataTable.Rows.Count; row++)
-                        {
-                            bool rowError = false;
-                            DataRow dataRow = dataTable.Rows[row];
-                            if (row == 0)
-                            {
-                                columns = dataRow.ItemArray;
-                            }
-                            else
-                            {
-                                MainTool mainTool = new MainTool();
-                                ShipmentDetails shipment = new ShipmentDetails();
-                                for(int col = 0; col < columns.Length; col++)
-                                {
-                                    try
-                                    {
-                                        switch (columns[col].ToString().ToUpper())
-                                        {
-                                            case "PO NUMBER":
-                                                mainTool.PONumber = dataRow[col].ToString();
-                                                break;
-                                            case "AREA":
-                                                mainTool.Area = dataRow[col].ToString();
-                                                break;
-                                            case "ENTITY":
-                                            case "TYPE - SAP":
-                                                mainTool.Entity = dataRow[col].ToString();
-                                                break;
-                                            case "REMARK":
-                                            case "REMARKS":
-                                            case "TYPE OF TOOLS":
-                                                mainTool.Remarks = dataRow[col].ToString();
-                                                break;
-                                            case "VENDOR":
-                                                mainTool.Vendor = dataRow[col].ToString();
-                                                break;
-                                            case "EQPID":
-                                            case "UMC EQID":
-                                                mainTool.EQPID = dataRow[col].ToString();
-                                                shipment.EQPID = dataRow[col].ToString();
-                                                break;
-                                            case "MODEL":
-                                            case "TOOL MODEL":
-                                                mainTool.Model = dataRow[col].ToString();
-                                                break;
-                                            case "PO DESCRIPTION":
-                                                break;
-                                            case "TRADE TERM":
-                                            case "INCOTERM":
-                                                mainTool.TradeTerm = dataRow[col].ToString();
-                                                break;
-                                            case "COUNTRY":
-                                                shipment.Country = dataRow[col].ToString();
-                                                break;
-                                            case "MODE":
-                                                shipment.Mode = dataRow[col].ToString();
-                                                break;
-                                            case "IEB ACTION":
-                                                break;
-                                            case "Y24 PRIORITY":
-                                                mainTool.Priorty = Convert.ToBoolean(dataRow[col]);
-                                                break;
-                                            case "M/I DATE":
-                                            case "MOVE IN DATE":
-                                                mainTool.MIDate = Convert.ToDateTime(dataRow[col]);
-                                                break;
-                                            case "MOVE IN DAY":
-                                                break;
-                                            case "FCA DATE":
-                                                mainTool.FCADate = Convert.ToDateTime(dataRow[col]);
-                                                break;
-                                            case "FCA DAY":
-                                                break;
-                                            case "ETA DATE":
-                                                shipment.Planned_SG_Arrival = Convert.ToDateTime(dataRow[col]);
-                                                break;
-                                            case "ETA DAY":
-                                                break;
-                                            case "FREIGHT DETAILS":
-                                                break;
-                                            case "DUAL PICK UP LOCATION?":
-                                                break;
-                                            case "IF YES, PLS INDICATE":
-                                                shipment.DualPickup = Convert.ToBoolean(dataRow[col]);
-                                                break;
-                                            case "TEMP CONTROL":
-                                                shipment.Temperature = Convert.ToBoolean(dataRow[col]);
-                                                break;
-                                            case "HUMIDITY CONTROL":
-                                                shipment.Humidity = Convert.ToBoolean(dataRow[col]);
-                                                break;
-                                            case "DG CARGO":
-                                                break;
-                                            case "> 56M3":
-                                                break;
-                                            case "21-55M3":
-                                                break;
-                                            case "< 20M3":
-                                                break;
-                                            case "NEED PERMIT?":
-                                            case "NEED PERMIT FOR IMPORT?":
-                                                shipment.Permit = Convert.ToBoolean(dataRow[col]);
-                                                break;
-                                            case "NEED POLICE ESCORTS?":
-                                            case "NEED POLICE ESSCORTS?":
-                                                shipment.Escort = Convert.ToBoolean(dataRow[col]);
-                                                break;
-                                            case "FORWARDER":
-                                            case "APPOINTED FORWARDER":
-                                                shipment.Forwarder = dataRow[col].ToString();
-                                                break;
-                                            case "STATUS":
-                                                break;
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        rowError = true;
-                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                        {
-                                            ImportId = importDetails.ImportId,
-                                            RowNumber = row,
-                                            Details = columns[col].ToString() + " : " + ex.Message
-                                        });
-                                    }
-                                }
-                                // Validation of the row
-                                if (String.IsNullOrEmpty(shipment.Forwarder))
-                                {
-                                    rowError = true;
-                                    DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                    {
-                                        ImportId = importDetails.ImportId,
-                                        RowNumber = row,
-                                        Details = "Validation error - Forwarder cannot be empty"
-                                    });
-                                }
-                                if (String.IsNullOrEmpty(mainTool.EQPID))
-                                {
-                                    rowError = true;
-                                    DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                    {
-                                        ImportId = importDetails.ImportId,
-                                        RowNumber = row,
-                                        Details = "Validation error - Forwarder cannot be empty"
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                importDetails.Details = ex.Message;
-                importDetails.Status = "Failed";
-                DAL_AccessLayer.UpdateImport(importDetails);
-                throw;
-            }
-        }
-
-        [Authorize]
-        [HttpPost]
         [Route("api/bhskapi/uploadtoolsdetails")]
         public string UploadToolsDetails()
         {
@@ -1129,14 +934,14 @@ namespace BHSK_TMS_API.Controllers
             }
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [Route("api/bhskapi/gettoolslist")]
         /**
          * param name="Fromdate" - format of parameter yyyy-MM-ddTHH:mm:ss
          * param name="Todate" - format of parameter yyyy-MM-ddTHH:mm:ss
          */
-        public IEnumerable<MainTool> GetToolsList([Optional] string Area, [Optional] string Vendor, [Optional] DateTime? Fromdate, [Optional] DateTime? Todate, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.MainToolsList> GetToolsList([Optional] string Area, [Optional] string Vendor, [Optional] DateTime? Fromdate, [Optional] DateTime? Todate, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1148,11 +953,10 @@ namespace BHSK_TMS_API.Controllers
             }
             return result;
         }
-
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getexporttoolslist")]
-        public IEnumerable<ApplicationModel.MainTool> GetExportToolsList(string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword)
+        public IEnumerable<ApplicationModel.MainToolsList> GetExportToolsList(string Area, string Vendor, DateTime? Fromdate, DateTime? Todate, string Search_keyword)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1261,16 +1065,12 @@ namespace BHSK_TMS_API.Controllers
                 {
                     foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
                     {
-                        if (!String.IsNullOrEmpty(damagePhotos.Data))
-                        {
-                            String path = HttpContext.Current.Server.MapPath("~/Attachments/" + damagePhotos.FileName);
-                            File.WriteAllBytes(path, Convert.FromBase64String(damagePhotos.Data));
-                            damagePhotos.Photo_URL = baseUrl + "/Attachments/" + damagePhotos.FileName;
-                            damagePhotos.Uploaded_Date = DateTime.Now;
-                            damagePhotos.UserId = Userid;
-                        }
+                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + damagePhotos.FileName);
+                        File.WriteAllBytes(path, Convert.FromBase64String(damagePhotos.Data));
+                        damagePhotos.Photo_URL = baseUrl + "/UMC_Attachments/" + damagePhotos.FileName;
                     }
                 }
+
 
                 DAL_AccessLayer.AddDamageDetails(damageDetails);
             }
@@ -1285,83 +1085,26 @@ namespace BHSK_TMS_API.Controllers
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var Userid = identity.Name;
-            string baseUrl = Url.Request.RequestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
-
-            if (damageDetails.DamagePhotos != null)
-            {
-                foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
-                {
-                    if (!String.IsNullOrEmpty(damagePhotos.Data))
-                    {
-                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + damagePhotos.FileName);
-                        File.WriteAllBytes(path, Convert.FromBase64String(damagePhotos.Data));
-                        damagePhotos.Photo_URL = baseUrl + "/Attachments/" + damagePhotos.FileName;
-                        damagePhotos.Uploaded_Date = DateTime.Now;
-                        damagePhotos.UserId = Userid;
-                    }
-                }
-            }
-
-            try
+            if (Userid != "")
             {
                 DAL_AccessLayer.UpdateDamageDetails(damageDetails);
-                return Ok();
             }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            return Ok();
         }
 
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/deldamagedetails")]
-        public IHttpActionResult DeleteDamageDetails(DamageDetails damageDetails)
+        public IHttpActionResult DelDamageDetails(DamageDetails damageDetails)
         {
 
-            try
+            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var Userid = identity.Name;
+            if (Userid != "")
             {
                 DAL_AccessLayer.DeleteDamageDetails(damageDetails);
-                return Ok();
             }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-        }
-
-        [Authorize]
-        [HttpPost]
-        [Route("api/bhskapi/deldamagephoto")]
-        public IHttpActionResult DeleteDamagePhoto(DamagePhotos damagePhotos)
-        {
-
-            try
-            {
-                DAL_AccessLayer.DeleteDamagePhoto(damagePhotos);
-                return Ok();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-        }
-
-        [Authorize]
-        [HttpPost]
-        [Route("api/bhskapi/delattachment")]
-        public IHttpActionResult DeleteAttachment(Attachment attachment)
-        {
-
-            try
-            {
-                DAL_AccessLayer.DeleteAttachment(attachment);
-                return Ok();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            return Ok();
         }
 
         [Authorize]
@@ -1530,35 +1273,43 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/addshipmentdetails")]
         public string AddShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
+            var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var userId = identity.Name;
-
+            var Userid = identity.Name;
             try
             {
-                string baseUrl = Url.Request.RequestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                string message = "";
+                string[] filenames = null;
 
                 if (shipmentDetails.Documents != null)
                 {
                     foreach (Attachment document in shipmentDetails.Documents)
                     {
-                        if (!String.IsNullOrEmpty(document.Data))
-                        {
-                            String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
-                            File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
-                            document.AttachmentFile_URL = baseUrl + "/Attachments/" + document.FileName;
-                            document.Uploaded_Date = DateTime.Now;
-                            document.UserId = userId;
-                        }
+                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
+                        File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
                     }
+                    filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
                 }
 
 
-                DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails);
-                return "The shipment has been successfully added.";
+                if (Userid != "")
+                {
+                    result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, false, filenames, Userid);
+                    if (result.StatusCode == 1)
+                    {
+                        message = "The shipment has been successfully added.";
+                    }
+                    else
+                    {
+                        message = "Something Went Wrong!, The shipment creation has failed.";
+                    }
+                }
+
+                return message;
             }
             catch (Exception)
             {
-                return "Something Went Wrong!, The shipment creation has failed.";
+                throw;
             }
 
 
@@ -1569,34 +1320,42 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/updateshipmentdetails")]
         public string UpdateShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
+            var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var userId = identity.Name;
+            var UserId = identity.Name;
             try
             {
-                string baseUrl = Url.Request.RequestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                string message = "";
+                string[] filenames = null;
 
                 if (shipmentDetails.Documents != null)
                 {
                     foreach (Attachment document in shipmentDetails.Documents)
                     {
-                        if (!String.IsNullOrEmpty(document.Data))
-                        {
-                            String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
-                            File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
-                            document.AttachmentFile_URL = baseUrl + "/Attachments/" + document.FileName;
-                            document.Uploaded_Date = DateTime.Now;
-                            document.UserId = userId;
-                        }
+                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
+                        File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
+                    }
+                    filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
+                }
+
+                if (UserId != "")
+                {
+                    result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, false, filenames, UserId);
+                    if (result.StatusCode == 1)
+                    {
+                        message = "The shipment has been successfully updated.";
+                    }
+                    else
+                    {
+                        message = "Something Went Wrong!, The shipment update has failed.";
                     }
                 }
 
-                DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails);
-
-                return "The shipment has been successfully updated.";
+                return message;
             }
             catch (Exception)
             {
-                return "Something Went Wrong!, The shipment update has failed.";
+                throw;
             }
         }
 
@@ -1605,19 +1364,27 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/splitshipment")]
         public HttpResponseMessage SplitShipment([FromBody] SplitShipment splitShipment)
         {
+            string Result1;
             try
             {
 
                 var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
                 var UserId = identity.Name;
 
-                DAL_AccessLayer.ShipmentInfo_Split(splitShipment.Id, splitShipment.SplitNumCrates);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                var result = DAL_AccessLayer.ShipmentInfo_Split(splitShipment.Id, splitShipment.SplitNumCrates);
+                if (result.StatusCode == 1)
+                    Result1 = "{ErrCode:1,ErrMsg:" + result.ErrMsg + "}";
+                else
+                    Result1 = "{ErrCode:-1,ErrMsg:" + result.ErrMsg + "}";
+
             }
             catch (Exception ex)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
+
+            return Request.CreateResponse(HttpStatusCode.OK, Result1);
+
         }
 
         [Authorize]

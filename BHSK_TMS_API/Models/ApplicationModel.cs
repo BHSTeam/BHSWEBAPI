@@ -311,7 +311,6 @@ namespace BHSK_TMS_API.ApplicationModel
         public int TotalArea { get; set; }
         public int NumCrates { get; set; }
         public int TotalVolume { get; set; }
-        public int TotalWeight { get; set; }
         public DateTime? Pickup_Planned { get; set; }
         public DateTime? Pickup_Actual { get; set; }
         public string FlightVesselNumber { get; set; }
@@ -332,7 +331,6 @@ namespace BHSK_TMS_API.ApplicationModel
         public string DelayedReason { get; set; }
         public bool DocumentReady { get; set; }
         public bool CargoReady { get; set; }
-        public bool DualPickup { get; set; }
         public Collection<Attachment> Documents { get; set; }
         public Collection<DamageDetails> Damages { get; set; }
     }
@@ -347,10 +345,10 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Data { get; set; }
     }
 
-    public class MainTool
+    public class MainToolsList
     {
         public int Id { get; set; }
-        public string PONumber { get; set; }
+        public string PO { get; set; }
         public string TradeTerm { get; set; }
         public string EQPID { get; set; }
         public string VEQPID { get; set; }
@@ -361,7 +359,6 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime MIDate { get; set; }
         public DateTime FCADate { get; set; }
         public string Remarks { get; set; }
-        public bool Priorty { get; set; }
 
     }
 
@@ -393,7 +390,6 @@ namespace BHSK_TMS_API.ApplicationModel
     }
     public class ImportErrorDetails
     {
-        public int Id { get; set; }
         public int ImportId { get; set; }
         public int RowNumber { get; set; }
         public string Details { get; set; }
