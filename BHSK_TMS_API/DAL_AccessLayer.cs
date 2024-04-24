@@ -465,14 +465,14 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static List<ApplicationModel.MainToolsList> GetMainToolsList(string UserId, string Area, string Vendor, DateTime? FromDate, DateTime? ToDate, string Search_keyword, int Page, int Opt)
+        public static List<MainTool> GetMainToolsList(string UserId, string Area, string Vendor, DateTime? FromDate, DateTime? ToDate, string Search_keyword, int Page, int Opt)
         {
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
-                    var result = conn.Query<ApplicationModel.MainToolsList>(
+                    var result = conn.Query<MainTool>(
                             "sp_Get_MainToolsList_UMC_API", new
                             {
                                 @UserId = UserId,
@@ -577,13 +577,14 @@ namespace BHSK_TMS_API
 
         public static void UpdateDamageDetails(DamageDetails damageDetails)
         {
+            int rowsAffected = 0;
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
 
-                    conn.Execute("UPDATE UMC_Damages SET CrateNum=@CrateNum,Location=@Location,DamageType=@DamageType WHERE Id=@Id", damageDetails);
+                    rowsAffected = conn.Execute("UPDATE UMC_Damages SET CrateNum=@CrateNum,Location=@Location,DamageType=@DamageType WHERE Id=@Id", damageDetails);
 
                     foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
                     {
@@ -593,24 +594,77 @@ namespace BHSK_TMS_API
             }
             catch (Exception ex)
             {
-                throw new Exception("sp_Get_ShipmentsList_UMC_API : " + ex.Message);
+                throw new Exception("UpdateDamageDetails : " + ex.Message);
+            }
+            if (rowsAffected <= 0)
+            {
+                throw new KeyNotFoundException();
             }
         }
 
         public static void DeleteDamageDetails(DamageDetails damageDetails)
         {
+            int rowsAffected = 0;
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
 
-                    conn.Execute("DELETE UMC_Damages WHERE Id=@Id", damageDetails);
+                    rowsAffected = conn.Execute("DELETE UMC_Damages WHERE Id=@Id", damageDetails);
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("sp_Get_ShipmentsList_UMC_API : " + ex.Message);
+                throw new Exception("DeleteDamageDetails : " + ex.Message);
+            }
+            if (rowsAffected <= 0)
+            {
+                throw new KeyNotFoundException();
+            }
+        }
+
+        public static void DeleteDamagePhoto(DamagePhotos damagePhotos)
+        {
+            int rowsAffected = 0;
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    rowsAffected = conn.Execute("DELETE UMC_DamagePhotos WHERE Id=@Id", damagePhotos);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("DeleteDamagePhoto : " + ex.Message);
+            }
+            if (rowsAffected <= 0)
+            {
+                throw new KeyNotFoundException();
+            }
+        }
+
+        public static void DeleteAttachment(Attachment attachment)
+        {
+            int rowsAffected = 0;
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    rowsAffected = conn.Execute("DELETE UMC_AttachmentDetails WHERE Id=@Id", attachment);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("DeleteAttachment : " + ex.Message);
+            }
+            if (rowsAffected <= 0)
+            {
+                throw new KeyNotFoundException();
             }
         }
 
@@ -636,7 +690,7 @@ namespace BHSK_TMS_API
             }
             catch (Exception ex)
             {
-                throw new Exception("sp_Get_UserList_API : " + ex.Message);
+                throw new Exception("sp_Get_ImportFiles_UMC_API : " + ex.Message);
             }
         }
         public static List<ApplicationModel.ImportErrorDetails> GetImportErrorDetails(int ImportId, int Page, int Opt)
@@ -661,7 +715,7 @@ namespace BHSK_TMS_API
             }
             catch (Exception ex)
             {
-                throw new Exception("sp_Get_UserList_API : " + ex.Message);
+                throw new Exception("sp_Get_ImportFiles_UMC_API : " + ex.Message);
             }
         }
         public static List<ApplicationModel.ImportUpdateDetails> GetImportUpdateDetails(int ImportId, int Page, int Opt)
@@ -686,7 +740,7 @@ namespace BHSK_TMS_API
             }
             catch (Exception ex)
             {
-                throw new Exception("sp_Get_UserList_API : " + ex.Message);
+                throw new Exception("sp_Get_ImportFiles_UMC_API : " + ex.Message);
             }
         }
         public static cOutMessage UploadAttachmentDetails(int ShipmentId, string AttachementFile, string UserId)
@@ -842,6 +896,68 @@ namespace BHSK_TMS_API
             }
         }
 
+        public static void AddImport(ImportDetails importDetails)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    int importId = (int)conn.ExecuteScalar("INSERT INTO UMC_Import (ImportDate,UserId,Details,Status) OUTPUT INSERTED.ID VALUES (@ImportDate,@UserId,@Details,@Status)", importDetails);
+                    importDetails.ImportId = importId;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" AddImport : " + ex.Message);
+            }
+        }
+
+        public static void UpdateImport(ImportDetails importDetails)
+        {
+            int rowsAffected = 0;
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    rowsAffected = conn.Execute("UPDATE UMC_Import SET Details=@Details, Status=@Status WHERE Id=@ImportId", importDetails);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" UpdateImport : " + ex.Message);
+            }
+            if (rowsAffected <= 0)
+            {
+                throw new KeyNotFoundException();
+            }
+        }
+
+        public static void AddImportError(ImportErrorDetails importErrorDetails)
+        {
+            int rowsAffected = 0;
+            try
+            {
+                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
+                {
+                    conn.Open();
+
+                    rowsAffected = conn.Execute("INSERT INTO UMC_Errors (ImportId,RowNumber,Details) VALUES (@ImportId,@RowNumber,@Details)", importErrorDetails);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" AddImportError : " + ex.Message);
+            }
+            if (rowsAffected <= 0)
+            {
+                throw new KeyNotFoundException();
+            }
+        }
+
         public static cOutMessage Import_DetailsUpdate(int NewRec, int UpdRec, int Fail, int Opt, string ErrorsMsg, int RowNumber, string CreatedBy)
         {
             try
@@ -869,6 +985,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UMC_ImportDetails_Insert : " + ex.Message);
             }
         }
+
         public static cOutMessage ShipmentInfo_Add(string PONumber, string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, DateTime MIDate, DateTime FCADate, string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status, int RowNumber, string CreatedBy)
         {
             try
@@ -926,7 +1043,7 @@ namespace BHSK_TMS_API
                     SqlTransaction transaction = conn.BeginTransaction();
                     conn.Execute("UPDATE UMC_Shipments" +
                         " SET EQPID=@EQPID,TradeTerm=@TradeTerm,Country=@Country,Forwarder=@Forwarder,Temperature=@Temperature,Humidity=@Humidity,Permit=@Permit,Escort=@Escort,Mode=@Mode,TotalArea=@TotalArea," +
-                        "NumCrates=@NumCrates,TotalVolume=@TotalVolume,Pickup_Planned=@Pickup_Planned,Pickup_Actual=@Pickup_Actual,AirShippingLine=@AirShippingLine,FlightVesselNumber=@FlightVesselNumber," +
+                        "NumCrates=@NumCrates,TotalVolume=@TotalVolume,TotalWeight=@TotalWeight,Pickup_Planned=@Pickup_Planned,Pickup_Actual=@Pickup_Actual,AirShippingLine=@AirShippingLine,FlightVesselNumber=@FlightVesselNumber," +
                         "FlightVessel_ETD=@FlightVessel_ETD,FlightVessel_ATD=@FlightVessel_ATD,Transit=@Transit,Transit_ETA=@Transit_ETA,Transit_ATA=@Transit_ATA,Transit_ETD=@Transit_ETD,Transit_ATD=@Transit_ATD," +
                         "SG_ETA=@Planned_SG_Arrival,Confirm_SG_ETA=@Confirm_SG_Arrival,SG_ATA=@Actual_SG_Arrival,DocumentReady=@DocumentReady,CargoReady=@CargoReady,Delayed=@Delayed,DelayedReason=@DelayedReason" +
                         " WHERE id=@ShipmentID",
@@ -963,10 +1080,10 @@ namespace BHSK_TMS_API
 
                     SqlTransaction transaction = conn.BeginTransaction();
                     int shipmentId = (int)conn.ExecuteScalar("INSERT INTO UMC_Shipments" +
-                        " (EQPID,TradeTerm,Country,Forwarder,Temperature,Humidity,Permit,Escort,Mode,TotalArea,NumCrates,TotalVolume,Pickup_Planned,Pickup_Actual,AirShippingLine,FlightVesselNumber," +
+                        " (EQPID,TradeTerm,Country,Forwarder,Temperature,Humidity,Permit,Escort,Mode,TotalArea,NumCrates,TotalVolume,TotalWeight,Pickup_Planned,Pickup_Actual,AirShippingLine,FlightVesselNumber," +
                         "FlightVessel_ETD,FlightVessel_ATD,Transit,Transit_ETA,Transit_ATA,Transit_ETD,Transit_ATD,SG_ETA,Confirm_SG_ETA,SG_ATA,DocumentReady,CargoReady,Delayed,DelayedReason)" +
                         " OUTPUT INSERTED.ID" +
-                        " VALUES (@EQPID,@TradeTerm,@Country,@Forwarder,@Temperature,@Humidity,@Permit,@Escort,@Mode,@TotalArea,@NumCrates,@TotalVolume,@Pickup_Planned,@Pickup_Actual,@AirShippingLine," +
+                        " VALUES (@EQPID,@TradeTerm,@Country,@Forwarder,@Temperature,@Humidity,@Permit,@Escort,@Mode,@TotalArea,@NumCrates,@TotalVolume,@TotalWeight,@Pickup_Planned,@Pickup_Actual,@AirShippingLine," +
                         "@FlightVesselNumber,@FlightVessel_ETD,@FlightVessel_ATD,@Transit,@Transit_ETA,@Transit_ATA,@Transit_ETD,@Transit_ATD,@Planned_SG_Arrival,@Confirm_SG_Arrival,@Actual_SG_Arrival," +
                         "@DocumentReady,@CargoReady,@Delayed,@DelayedReason)",
                         shipmentDetails,
@@ -988,25 +1105,52 @@ namespace BHSK_TMS_API
                 throw new Exception(" ShipmentInfo_CreateNew : " + ex.Message);
             }
         }
-        public static cOutMessage ShipmentInfo_Split(int id, int splitNumCrates)
+        public static void ShipmentInfo_Split(int id, int splitNumCrates)
         {
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
-                    var result = conn.Query<cOutMessage>(
-                            "sp_ShipmentDetails_Split_API", new
+
+                    SqlTransaction transaction = conn.BeginTransaction();
+                    int numCrates = (int)conn.ExecuteScalar("SELECT NumCrates FROM UMC_Shipments WHERE Id=@ShipmentID",
+                        new
+                        {
+                            ShipmentID = id,
+                        },
+                        transaction
+                        );
+
+                    if (numCrates > splitNumCrates)
+                    {
+                        conn.Execute("UPDATE UMC_Shipments SET NumCrates = NumCrates - @SplitCrates WHERE Id=@ShipmentID",
+                            new
                             {
-                                @ShipmentID = id,
-                                @Split_Crates = splitNumCrates
-                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
-                    return result;
+                                SplitCrates = splitNumCrates,
+                                ShipmentID = id,
+                            },
+                            transaction
+                            );
+                        conn.Execute("INSERT INTO UMC_Shipments (EQPID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, NumCrates, TotalVolume, TotalWeight, Pickup_Planned," +
+                            " Pickup_Actual, AirShippingLine, MasterAWB, HAWB)" +
+                            " SELECT EQPID, TradeTerm, Country, Forwarder, Temperature, Humidity, Permit, Escort, Mode, TotalArea, @SplitCrates, TotalVolume, TotalWeight, Pickup_Planned, Pickup_Actual, AirShippingLine," +
+                            " MasterAWB, HAWB FROM UMC_Shipments" +
+                            " WHERE  id=@ShipmentID",
+                            new
+                            {
+                                SplitCrates = splitNumCrates,
+                                ShipmentID = id,
+                            },
+                            transaction
+                            );
+                    }
+                    transaction.Commit();
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception(" sp_ShipmentDetails_Split_API : " + ex.Message);
+                throw new Exception(" ShipmentInfo_Split : " + ex.Message);
             }
         }
 
