@@ -1064,7 +1064,7 @@ namespace BHSK_TMS_API
                         " SET EQPID=@EQPID,TradeTerm=@TradeTerm,Country=@Country,Forwarder=@Forwarder,Temperature=@Temperature,Humidity=@Humidity,Permit=@Permit,Escort=@Escort,Mode=@Mode,TotalArea=@TotalArea," +
                         "NumCrates=@NumCrates,TotalVolume=@TotalVolume,TotalWeight=@TotalWeight,Pickup_Planned=@Pickup_Planned,Pickup_Actual=@Pickup_Actual,AirShippingLine=@AirShippingLine,FlightVesselNumber=@FlightVesselNumber," +
                         "FlightVessel_ETD=@FlightVessel_ETD,FlightVessel_ATD=@FlightVessel_ATD,Transit=@Transit,Transit_ETA=@Transit_ETA,Transit_ATA=@Transit_ATA,Transit_ETD=@Transit_ETD,Transit_ATD=@Transit_ATD," +
-                        "SG_ETA=@Planned_SG_Arrival,Confirm_SG_ETA=@Confirm_SG_Arrival,SG_ATA=@Actual_SG_Arrival,DocumentReady=@DocumentReady,CargoReady=@CargoReady,Delayed=@Delayed,DelayedReason=@DelayedReason" +
+                        "SG_ETA=@Planned_SG_Arrival,Confirm_SG_ETA=@Confirm_SG_Arrival,SG_ATA=@Actual_SG_Arrival,DocumentReady=@DocumentReady,CargoReady=@CargoReady,Delayed=@Delayed,DelayedReason=@DelayedReason,DualPickup=@DualPickup" +
                         " WHERE id=@ShipmentID",
                         shipmentDetails,
                         transaction
@@ -1100,11 +1100,11 @@ namespace BHSK_TMS_API
                     SqlTransaction transaction = conn.BeginTransaction();
                     int shipmentId = (int)conn.ExecuteScalar("INSERT INTO UMC_Shipments" +
                         " (EQPID,TradeTerm,Country,Forwarder,Temperature,Humidity,Permit,Escort,Mode,TotalArea,NumCrates,TotalVolume,TotalWeight,Pickup_Planned,Pickup_Actual,AirShippingLine,FlightVesselNumber," +
-                        "FlightVessel_ETD,FlightVessel_ATD,Transit,Transit_ETA,Transit_ATA,Transit_ETD,Transit_ATD,SG_ETA,Confirm_SG_ETA,SG_ATA,DocumentReady,CargoReady,Delayed,DelayedReason)" +
+                        "FlightVessel_ETD,FlightVessel_ATD,Transit,Transit_ETA,Transit_ATA,Transit_ETD,Transit_ATD,SG_ETA,Confirm_SG_ETA,SG_ATA,DocumentReady,CargoReady,Delayed,DelayedReason,DualPickup)" +
                         " OUTPUT INSERTED.ID" +
                         " VALUES (@EQPID,@TradeTerm,@Country,@Forwarder,@Temperature,@Humidity,@Permit,@Escort,@Mode,@TotalArea,@NumCrates,@TotalVolume,@TotalWeight,@Pickup_Planned,@Pickup_Actual,@AirShippingLine," +
                         "@FlightVesselNumber,@FlightVessel_ETD,@FlightVessel_ATD,@Transit,@Transit_ETA,@Transit_ATA,@Transit_ETD,@Transit_ATD,@Planned_SG_Arrival,@Confirm_SG_Arrival,@Actual_SG_Arrival," +
-                        "@DocumentReady,@CargoReady,@Delayed,@DelayedReason)",
+                        "@DocumentReady,@CargoReady,@Delayed,@DelayedReason,@DualPickup)",
                         shipmentDetails,
                         transaction
                         );

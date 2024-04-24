@@ -754,7 +754,7 @@ namespace BHSK_TMS_API.Controllers
                                             case "IEB ACTION":
                                                 break;
                                             case "Y24 PRIORITY":
-                                                mainTool.Priorty = Convert.ToBoolean(dataRow[col]);
+                                                mainTool.Priority = Convert.ToBoolean(dataRow[col]);
                                                 break;
                                             case "M/I DATE":
                                             case "MOVE IN DATE":

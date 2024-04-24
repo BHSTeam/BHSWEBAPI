@@ -331,6 +331,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public string DelayedReason { get; set; }
         public bool DocumentReady { get; set; }
         public bool CargoReady { get; set; }
+        public bool DualPickup { get; set; }
         public Collection<Attachment> Documents { get; set; }
         public Collection<DamageDetails> Damages { get; set; }
     }
@@ -346,10 +347,10 @@ namespace BHSK_TMS_API.ApplicationModel
         public string UserId { get; set; }
     }
 
-    public class MainToolsList
+    public class MainTool
     {
         public int Id { get; set; }
-        public string PO { get; set; }
+        public string PONumber { get; set; }
         public string TradeTerm { get; set; }
         public string EQPID { get; set; }
         public string VEQPID { get; set; }
@@ -363,7 +364,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime Previous_FCA_Changes { get; set; }
         public DateTime CreateDateTime { get; set; }
         public string Remarks { get; set; }
-
+        public bool Priority { get; set; }
     }
 
 
