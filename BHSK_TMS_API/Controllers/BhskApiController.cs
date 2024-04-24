@@ -1065,16 +1065,12 @@ namespace BHSK_TMS_API.Controllers
                 {
                     foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
                     {
-                        if (!String.IsNullOrEmpty(damagePhotos.Data))
-                        {
-                            String path = HttpContext.Current.Server.MapPath("~/Attachments/" + damagePhotos.FileName);
-                            File.WriteAllBytes(path, Convert.FromBase64String(damagePhotos.Data));
-                            damagePhotos.Photo_URL = baseUrl + "/Attachments/" + damagePhotos.FileName;
-                            damagePhotos.Uploaded_Date = DateTime.Now;
-                            damagePhotos.UserId = Userid;
-                        }
+                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + damagePhotos.FileName);
+                        File.WriteAllBytes(path, Convert.FromBase64String(damagePhotos.Data));
+                        damagePhotos.Photo_URL = baseUrl + "/UMC_Attachments/" + damagePhotos.FileName;
                     }
                 }
+
 
                 DAL_AccessLayer.AddDamageDetails(damageDetails);
             }
@@ -1091,23 +1087,6 @@ namespace BHSK_TMS_API.Controllers
             var Userid = identity.Name;
             if (Userid != "")
             {
-                string baseUrl = Url.Request.RequestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
-
-                if (damageDetails.DamagePhotos != null)
-                {
-                    foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
-                    {
-                        if (!String.IsNullOrEmpty(damagePhotos.Data))
-                        {
-                            String path = HttpContext.Current.Server.MapPath("~/Attachments/" + damagePhotos.FileName);
-                            File.WriteAllBytes(path, Convert.FromBase64String(damagePhotos.Data));
-                            damagePhotos.Photo_URL = baseUrl + "/Attachments/" + damagePhotos.FileName;
-                            damagePhotos.Uploaded_Date = DateTime.Now;
-                            damagePhotos.UserId = Userid;
-                        }
-                    }
-                }
-
                 DAL_AccessLayer.UpdateDamageDetails(damageDetails);
             }
             return Ok();
@@ -1116,7 +1095,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/deldamagedetails")]
-        public IHttpActionResult DeleteDamageDetails(DamageDetails damageDetails)
+        public IHttpActionResult DelDamageDetails(DamageDetails damageDetails)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1294,35 +1273,43 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/addshipmentdetails")]
         public string AddShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
+            var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var userId = identity.Name;
-
+            var Userid = identity.Name;
             try
             {
-                string baseUrl = Url.Request.RequestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                string message = "";
+                string[] filenames = null;
 
                 if (shipmentDetails.Documents != null)
                 {
                     foreach (Attachment document in shipmentDetails.Documents)
                     {
-                        if (!String.IsNullOrEmpty(document.Data))
-                        {
-                            String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
-                            File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
-                            document.AttachmentFile_URL = baseUrl + "/Attachments/" + document.FileName;
-                            document.Uploaded_Date = DateTime.Now;
-                            document.UserId = userId;
-                        }
+                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
+                        File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
                     }
+                    filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
                 }
 
 
-                DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails);
-                return "The shipment has been successfully added.";
+                if (Userid != "")
+                {
+                    result = DAL_AccessLayer.ShipmentInfo_CreateNew(shipmentDetails.EQPID, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, false, filenames, Userid);
+                    if (result.StatusCode == 1)
+                    {
+                        message = "The shipment has been successfully added.";
+                    }
+                    else
+                    {
+                        message = "Something Went Wrong!, The shipment creation has failed.";
+                    }
+                }
+
+                return message;
             }
             catch (Exception)
             {
-                return "Something Went Wrong!, The shipment creation has failed.";
+                throw;
             }
 
 
@@ -1333,34 +1320,42 @@ namespace BHSK_TMS_API.Controllers
         [Route("api/bhskapi/updateshipmentdetails")]
         public string UpdateShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
         {
+            var result = (dynamic)null;
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var userId = identity.Name;
+            var UserId = identity.Name;
             try
             {
-                string baseUrl = Url.Request.RequestUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                string message = "";
+                string[] filenames = null;
 
                 if (shipmentDetails.Documents != null)
                 {
                     foreach (Attachment document in shipmentDetails.Documents)
                     {
-                        if (!String.IsNullOrEmpty(document.Data))
-                        {
-                            String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
-                            File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
-                            document.AttachmentFile_URL = baseUrl + "/Attachments/" + document.FileName;
-                            document.Uploaded_Date = DateTime.Now;
-                            document.UserId = userId;
-                        }
+                        String path = HttpContext.Current.Server.MapPath("~/Attachments/" + document.FileName);
+                        File.WriteAllBytes(path, Convert.FromBase64String(document.Data));
+                    }
+                    filenames = shipmentDetails.Documents.Select(d => d.FileName).ToArray();
+                }
+
+                if (UserId != "")
+                {
+                    result = DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails.Id, shipmentDetails.TradeTerm, shipmentDetails.Country, shipmentDetails.Forwarder, shipmentDetails.Temperature, shipmentDetails.Humidity, shipmentDetails.Permit, shipmentDetails.Escort, shipmentDetails.Mode, shipmentDetails.TotalArea, shipmentDetails.NumCrates, shipmentDetails.TotalVolume, shipmentDetails.Pickup_Planned, shipmentDetails.Pickup_Actual, shipmentDetails.FlightVesselNumber, shipmentDetails.AirShippingLine, shipmentDetails.FlightVessel_ETD, shipmentDetails.FlightVessel_ATD, shipmentDetails.Transit, shipmentDetails.Transit_ETA, shipmentDetails.Transit_ATA, shipmentDetails.Transit_ETD, shipmentDetails.Transit_ATD, shipmentDetails.Planned_SG_Arrival, shipmentDetails.Confirm_SG_Arrival, shipmentDetails.Actual_SG_Arrival, shipmentDetails.DocumentReady, shipmentDetails.CargoReady, shipmentDetails.Delayed, shipmentDetails.DelayedReason, false, filenames, UserId);
+                    if (result.StatusCode == 1)
+                    {
+                        message = "The shipment has been successfully updated.";
+                    }
+                    else
+                    {
+                        message = "Something Went Wrong!, The shipment update has failed.";
                     }
                 }
 
-                DAL_AccessLayer.ShipmentInfo_Update(shipmentDetails);
-
-                return "The shipment has been successfully updated.";
+                return message;
             }
             catch (Exception)
             {
-                return "Something Went Wrong!, The shipment update has failed.";
+                throw;
             }
         }
 
