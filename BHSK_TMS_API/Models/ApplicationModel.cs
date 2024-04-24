@@ -13,6 +13,7 @@ using System.Web.WebPages.Html;
 using System.Web;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Data.Linq;
 
 namespace BHSK_TMS_API.ApplicationModel
 {
@@ -344,7 +345,6 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime? Uploaded_Date { get; set; }
         public string FileName { get; set; }
         public string Data { get; set; }
-        public string UserId { get; set; }
     }
 
     public class MainTool
@@ -430,9 +430,9 @@ namespace BHSK_TMS_API.ApplicationModel
         public int Id { get; set; }
         public int Damage_Id { get; set; }
         public string Photo_URL { get; set; }
-        public DateTime? Uploaded_Date { get; set; }
+        public string Uploaded_Date { get; set; }
         public string FileName { get; set; }
-        public string UserId { get; set; }
-        public string Data { get; set; }
+        public int UserId { get; set; }
+        public string Data {  get; set; }
     }
 }

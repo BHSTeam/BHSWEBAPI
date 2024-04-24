@@ -1032,7 +1032,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static void ShipmentInfo_Update(ShipmentDetails shipmentDetails)
+        public static cOutMessage ShipmentInfo_Update(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime? Pickup_Planned, DateTime? Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime? FlightVessel_ETD, DateTime? FlightVessel_ATD, string Transit, DateTime? Transit_ETA, DateTime? Transit_ATA, DateTime? Transit_ETD, DateTime? Transit_ATD, DateTime? Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime? Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string[] AttachmentFiles, string CreatedBy)
         {
             try
             {
@@ -1070,7 +1070,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UserInfo_Add_API : " + ex.Message);
             }
         }
-        public static void ShipmentInfo_CreateNew(ShipmentDetails shipmentDetails)
+        public static cOutMessage ShipmentInfo_CreateNew(string EQPID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime? Pickup_Planned, DateTime? Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime? FlightVessel_ETD, DateTime? FlightVessel_ATD, string Transit, DateTime? Transit_ETA, DateTime? Transit_ATA, DateTime? Transit_ETD, DateTime? Transit_ATD, DateTime? Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime? Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string[] AttachmentFiles, string CreatedBy)
         {
             try
             {
