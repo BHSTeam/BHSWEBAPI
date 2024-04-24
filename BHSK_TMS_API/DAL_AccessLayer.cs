@@ -915,7 +915,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static cOutMessage ShipmentInfo_Update(int ShipmentID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime? Pickup_Planned, DateTime? Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime? FlightVessel_ETD, DateTime? FlightVessel_ATD, string Transit, DateTime? Transit_ETA, DateTime? Transit_ATA, DateTime? Transit_ETD, DateTime? Transit_ATD, DateTime? Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime? Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string[] AttachmentFiles, string CreatedBy)
+        public static void ShipmentInfo_Update(ShipmentDetails shipmentDetails)
         {
             try
             {
@@ -923,45 +923,29 @@ namespace BHSK_TMS_API
                 {
                     conn.Open();
 
-                    var result = conn.Query<cOutMessage>(
-                            "sp_ShipmentDetails_Update_API", new
-                            {
-                                @ShipmentID = ShipmentID,
-                                @TradeTerm = TradeTerm,
-                                @Country = Country,
-                                @Forwarder = Forwarder,
-                                @Temperature = Temperature,
-                                @Humidity = Humidity,
-                                @Permit = Permit,
-                                @Escort = Escort,
-                                @Mode = Mode,
-                                @TotalArea = TotalArea,
-                                @Num_Crates = Num_Crates,
-                                @TotalVolume = TotalVolume,
-                                @Pickup_Planned = Pickup_Planned,
-                                @Pickup_Actual = Pickup_Actual,
-                                @FlightVesselNumber = FlightVesselNumber,
-                                @AirShippingLine = AirShippingLine,
-                                @FlightVessel_ETD = FlightVessel_ETD,
-                                @FlightVessel_ATD = FlightVessel_ATD,
-                                @Transit = Transit,
-                                @Transit_ETA = Transit_ETA,
-                                @Transit_ATA = Transit_ATA,
-                                @Transit_ETD = Transit_ETD,
-                                @Transit_ATD = Transit_ATD,
-                                @Planned_SG_Arrival = Planned_SG_Arrival,
-                                @Confirm_SG_Arrival = Confirm_SG_Arrival,
-                                @Actual_SG_Arrival = Actual_SG_Arrival,
-                                @DocumentReady = DocumentReady,
-                                @CargoReady = CargoReady,
-                                @Delayed = Delayed,
-                                @DelayedReason = DelayedReason,
-                                @Shock_Watch_Activated = Shock_Watch_Activated,
-                                @AttachmentFiles = AttachmentFiles != null?String.Join(",", AttachmentFiles):null,
-                                @CreatedBy = CreatedBy
+                    SqlTransaction transaction = conn.BeginTransaction();
+                    conn.Execute("UPDATE UMC_Shipments" +
+                        " SET EQPID=@EQPID,TradeTerm=@TradeTerm,Country=@Country,Forwarder=@Forwarder,Temperature=@Temperature,Humidity=@Humidity,Permit=@Permit,Escort=@Escort,Mode=@Mode,TotalArea=@TotalArea," +
+                        "NumCrates=@NumCrates,TotalVolume=@TotalVolume,Pickup_Planned=@Pickup_Planned,Pickup_Actual=@Pickup_Actual,AirShippingLine=@AirShippingLine,FlightVesselNumber=@FlightVesselNumber," +
+                        "FlightVessel_ETD=@FlightVessel_ETD,FlightVessel_ATD=@FlightVessel_ATD,Transit=@Transit,Transit_ETA=@Transit_ETA,Transit_ATA=@Transit_ATA,Transit_ETD=@Transit_ETD,Transit_ATD=@Transit_ATD," +
+                        "SG_ETA=@Planned_SG_Arrival,Confirm_SG_ETA=@Confirm_SG_Arrival,SG_ATA=@Actual_SG_Arrival,DocumentReady=@DocumentReady,CargoReady=@CargoReady,Delayed=@Delayed,DelayedReason=@DelayedReason" +
+                        " WHERE id=@ShipmentID",
+                        shipmentDetails,
+                        transaction
+                        );
 
-                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
-                    return result;
+                    foreach (Attachment document in shipmentDetails.Documents)
+                    {
+                        int count = (int)conn.ExecuteScalar("SELECT COUNT(*) FROM UMC_AttachmentDetails WHERE Id=@Id", document, transaction);
+                        if (count <= 0)
+                        {
+                            document.Shipment_Id = shipmentDetails.Id;
+                            conn.Execute("INSERT INTO UMC_AttachmentDetails (Shipment_Id,AttachmentFile_URL,Uploaded_Date,UserId, FileName) VALUES (@Shipment_Id, @AttachmentFile_URL, @Uploaded_Date, @UserId, @FileName)",
+                                document,
+                                transaction);
+                        }
+                    }
+                    transaction.Commit();
                 }
             }
             catch (Exception ex)
@@ -969,56 +953,39 @@ namespace BHSK_TMS_API
                 throw new Exception(" sp_UserInfo_Add_API : " + ex.Message);
             }
         }
-        public static cOutMessage ShipmentInfo_CreateNew(string EQPID, string TradeTerm, string Country, string Forwarder, bool Temperature, bool Humidity, bool Permit, bool Escort, string Mode, int TotalArea, int Num_Crates, int TotalVolume, DateTime? Pickup_Planned, DateTime? Pickup_Actual, string FlightVesselNumber, string AirShippingLine, DateTime? FlightVessel_ETD, DateTime? FlightVessel_ATD, string Transit, DateTime? Transit_ETA, DateTime? Transit_ATA, DateTime? Transit_ETD, DateTime? Transit_ATD, DateTime? Planned_SG_Arrival, bool Confirm_SG_Arrival, DateTime? Actual_SG_Arrival, bool DocumentReady, bool CargoReady, bool Delayed, string DelayedReason, bool Shock_Watch_Activated, string[] AttachmentFiles, string CreatedBy)
+        public static void ShipmentInfo_CreateNew(ShipmentDetails shipmentDetails)
         {
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
-                    var result = conn.Query<cOutMessage>(
-                            "sp_ShipmentDetails_Add_API", new
-                            {
-                                @EQPID = EQPID,
-                                @TradeTerm = TradeTerm,
-                                @Country = Country,
-                                @Forwarder = Forwarder,
-                                @Temperature = Temperature,
-                                @Humidity = Humidity,
-                                @Permit = Permit,
-                                @Escort = Escort,
-                                @Mode = Mode,
-                                @TotalArea = TotalArea,
-                                @Num_Crates = Num_Crates,
-                                @TotalVolume = TotalVolume,
-                                @Pickup_Planned = Pickup_Planned,
-                                @Pickup_Actual = Pickup_Actual,
-                                @FlightVesselNumber = FlightVesselNumber,
-                                @AirShippingLine = AirShippingLine,
-                                @FlightVessel_ETD = FlightVessel_ETD,
-                                @FlightVessel_ATD = FlightVessel_ATD,
-                                @Transit = Transit,
-                                @Transit_ETA = Transit_ETA,
-                                @Transit_ATA = Transit_ATA,
-                                @Transit_ETD = Transit_ETD,
-                                @Transit_ATD = Transit_ATD,
-                                @Planned_SG_Arrival = Planned_SG_Arrival,
-                                @Confirm_SG_Arrival = Confirm_SG_Arrival,
-                                @Actual_SG_Arrival = Actual_SG_Arrival,
-                                @DocumentReady = DocumentReady,
-                                @CargoReady = CargoReady,
-                                @Delayed = Delayed,
-                                @DelayedReason = DelayedReason,
-                                @Shock_Watch_Activated = Shock_Watch_Activated,
-                                @AttachmentFiles = AttachmentFiles != null?String.Join(",", AttachmentFiles):null,
-                                @CreatedBy = CreatedBy,
-                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
-                    return result;
+
+                    SqlTransaction transaction = conn.BeginTransaction();
+                    int shipmentId = (int)conn.ExecuteScalar("INSERT INTO UMC_Shipments" +
+                        " (EQPID,TradeTerm,Country,Forwarder,Temperature,Humidity,Permit,Escort,Mode,TotalArea,NumCrates,TotalVolume,Pickup_Planned,Pickup_Actual,AirShippingLine,FlightVesselNumber," +
+                        "FlightVessel_ETD,FlightVessel_ATD,Transit,Transit_ETA,Transit_ATA,Transit_ETD,Transit_ATD,SG_ETA,Confirm_SG_ETA,SG_ATA,DocumentReady,CargoReady,Delayed,DelayedReason)" +
+                        " OUTPUT INSERTED.ID" +
+                        " VALUES (@EQPID,@TradeTerm,@Country,@Forwarder,@Temperature,@Humidity,@Permit,@Escort,@Mode,@TotalArea,@NumCrates,@TotalVolume,@Pickup_Planned,@Pickup_Actual,@AirShippingLine," +
+                        "@FlightVesselNumber,@FlightVessel_ETD,@FlightVessel_ATD,@Transit,@Transit_ETA,@Transit_ATA,@Transit_ETD,@Transit_ATD,@Planned_SG_Arrival,@Confirm_SG_Arrival,@Actual_SG_Arrival," +
+                        "@DocumentReady,@CargoReady,@Delayed,@DelayedReason)",
+                        shipmentDetails,
+                        transaction
+                        );
+
+                    foreach (Attachment document in shipmentDetails.Documents)
+                    {
+                        document.Shipment_Id = shipmentId;
+                        conn.Execute("INSERT INTO UMC_AttachmentDetails (Shipment_Id,AttachmentFile_URL,Uploaded_Date,UserId, FileName) VALUES (@Shipment_Id, @AttachmentFile_URL, @Uploaded_Date, @UserId, @FileName)",
+                            document,
+                            transaction);
+                    }
+                    transaction.Commit();
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception(" sp_ShipmentDetails_Add_API : " + ex.Message);
+                throw new Exception(" ShipmentInfo_CreateNew : " + ex.Message);
             }
         }
         public static cOutMessage ShipmentInfo_Split(int id, int splitNumCrates)
