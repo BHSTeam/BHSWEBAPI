@@ -588,7 +588,14 @@ namespace BHSK_TMS_API
 
                     foreach (DamagePhotos damagePhotos in damageDetails.DamagePhotos)
                     {
-                        conn.Execute("UPDATE UMC_DamagePhotos SET Photo_URL=@Photo_URL,Uploaded_Date=@Uploaded_Date,UserId=@UserId,FileName=@FileName WHERE Id=@Id", damagePhotos);
+                        if (damagePhotos.Id == 0)
+                        {
+                            conn.Execute("INSERT INTO UMC_DamagePhotos (Damage_Id, Photo_URL, Uploaded_Date, UserId, FileName) VALUES (@Damage_Id, @Photo_URL, @Uploaded_Date, @UserId, @FileName)", new { Damage_Id = damageDetails.Id, Photo_URL = damagePhotos.Photo_URL, Uploaded_Date = damagePhotos.Uploaded_Date, UserId = damagePhotos.UserId, FileName = damagePhotos.FileName });
+                        }
+                        else
+                        {
+                            conn.Execute("UPDATE UMC_DamagePhotos SET Photo_URL=@Photo_URL,Uploaded_Date=@Uploaded_Date,UserId=@UserId,FileName=@FileName WHERE Id=@Id", damagePhotos);
+                        }
                     }
                 }
             }
