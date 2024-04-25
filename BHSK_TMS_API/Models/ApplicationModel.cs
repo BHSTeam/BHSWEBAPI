@@ -406,7 +406,9 @@ namespace BHSK_TMS_API.ApplicationModel
         public int Id { get; set; }
         public int ImportId { get; set; }
         public string Column_Name { get; set; }
+        public string Activity { get; set; }
         public string Active_Type { get; set; }
+        public string Details { get; set; }
         public int RowNumber { get; set; }
         public string UserId { get; set; }
     }

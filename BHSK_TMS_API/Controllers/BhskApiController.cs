@@ -591,7 +591,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getuserlist")]
-        public IEnumerable<ApplicationModel.UserInfo> getUserList([Optional] string UserName, [Optional] string EmailId, [Optional] string Contact, [Optional] string Workgroup, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.UserInfo> GetUserList([Optional] string UserName, [Optional] string EmailId, [Optional] string Contact, [Optional] string Workgroup, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -689,546 +689,368 @@ namespace BHSK_TMS_API.Controllers
                     string filePath = HttpContext.Current.Server.MapPath("~/Excels/" + Inputfile.FileName);
                     Inputfile.SaveAs(filePath);
 
-                    //Task.Run(() =>
-                    //{
-                        try
+                    try
+                    {
+                        using (var reader = ExcelReaderFactory.CreateReader(File.OpenRead(filePath)))
                         {
-                            using (var reader = ExcelReaderFactory.CreateReader(File.OpenRead(filePath)))
+                            DataSet dataSet = reader.AsDataSet();
+                            DataTable dataTable = dataSet.Tables["Tool and Accessories List"];
+                            object[] columns = null;
+                            for (int row = 0; row < dataTable.Rows.Count; row++)
                             {
-                                DataSet dataSet = reader.AsDataSet();
-                                DataTable dataTable = dataSet.Tables["Tool and Accessories List"];
-                                object[] columns = null;
-                                for (int row = 0; row < dataTable.Rows.Count; row++)
+                                bool rowError = false;
+                                DataRow dataRow = dataTable.Rows[row];
+                                if (row == 0)
                                 {
-                                    bool rowError = false;
-                                    DataRow dataRow = dataTable.Rows[row];
-                                    if (row == 0)
+                                    columns = dataRow.ItemArray;
+                                }
+                                else
+                                {
+                                    MainTool mainTool = new MainTool() { CreatedDateTime = DateTime.Now };
+                                    ShipmentDetails shipment = new ShipmentDetails();
+                                    for (int col = 0; col < columns.Length; col++)
                                     {
-                                        columns = dataRow.ItemArray;
+                                        try
+                                        {
+                                            switch (Regex.Replace(columns[col].ToString().ToUpper(), @"\t|\n|\r", ""))
+                                            {
+                                                case "PO NUMBER":
+                                                    mainTool.PONumber = dataRow[col].ToString();
+                                                    break;
+                                                case "AREA":
+                                                    mainTool.Area = dataRow[col].ToString();
+                                                    break;
+                                                case "ENTITY":
+                                                case "TYPE - SAP":
+                                                    mainTool.Entity = dataRow[col].ToString();
+                                                    break;
+                                                case "REMARK":
+                                                case "REMARKS":
+                                                case "TYPE OF TOOLS":
+                                                    mainTool.Remarks = dataRow[col].ToString();
+                                                    break;
+                                                case "VENDOR":
+                                                    mainTool.Vendor = dataRow[col].ToString();
+                                                    break;
+                                                case "VEQPID":
+                                                    mainTool.VEQPID = dataRow[col].ToString();
+                                                    break;
+                                                case "EQPID":
+                                                case "UMC EQID":
+                                                    mainTool.EQPID = dataRow[col].ToString();
+                                                    shipment.EQPID = dataRow[col].ToString();
+                                                    break;
+                                                case "MODEL":
+                                                case "TOOL MODEL":
+                                                    mainTool.Model = dataRow[col].ToString();
+                                                    break;
+                                                case "PO DESCRIPTION":
+                                                    break;
+                                                case "TRADE TERM":
+                                                case "INCOTERM":
+                                                    mainTool.TradeTerm = dataRow[col].ToString();
+                                                    break;
+                                                case "COUNTRY":
+                                                    shipment.Country = dataRow[col].ToString();
+                                                    break;
+                                                case "MODE":
+                                                    shipment.Mode = dataRow[col].ToString();
+                                                    break;
+                                                case "IEB ACTION":
+                                                    break;
+                                                case "Y24 PRIORITY":
+                                                    mainTool.Priority = false;//Convert.ToBoolean(dataRow[col]);
+                                                    break;
+                                                case "M/I DATE":
+                                                case "MOVE IN DATE":
+                                                    mainTool.MIDate = dataRow[col] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dataRow[col]);
+                                                    break;
+                                                case "MOVE IN DAY":
+                                                    break;
+                                                case "FCA DATE":
+                                                    mainTool.FCADate = dataRow[col] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dataRow[col]);
+                                                    break;
+                                                case "FCA DAY":
+                                                    break;
+                                                case "ETA DATE":
+                                                    shipment.Planned_SG_Arrival = dataRow[col] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dataRow[col]);
+                                                    break;
+                                                case "ETA DAY":
+                                                    break;
+                                                case "FREIGHT DETAILS":
+                                                    break;
+                                                case "DUAL PICK UP LOCATION?":
+                                                    shipment.DualPickup = ConvertToBoolean(dataRow[col]);
+                                                    break;
+                                                case "IF YES, PLS INDICATE":
+                                                    break;
+                                                case "TEMP CONTROL":
+                                                case "TEMP CONTOL":
+                                                    shipment.Temperature = ConvertToBoolean(dataRow[col]);
+                                                    break;
+                                                case "HUMIDITY CONTROL":
+                                                case "HUMIDITY CONTOL":
+                                                    shipment.Humidity = ConvertToBoolean(dataRow[col]);
+                                                    break;
+                                                case "DG CARGO":
+                                                    break;
+                                                case "> 56M3":
+                                                    break;
+                                                case "21-55M3":
+                                                    break;
+                                                case "< 20M3":
+                                                    break;
+                                                case "NEED PERMIT?":
+                                                case "NEED PERMIT FOR IMPORT?":
+                                                    shipment.Permit = ConvertToBoolean(dataRow[col]);
+                                                    break;
+                                                case "NEED POLICE ESCORTS?":
+                                                case "NEED POLICE ESSCORTS?":
+                                                    shipment.Escort = ConvertToBoolean(dataRow[col]);
+                                                    break;
+                                                case "FORWARDER":
+                                                case "APPOINTED FORWARDER":
+                                                    shipment.Forwarder = dataRow[col].ToString();
+                                                    break;
+                                                case "STATUS":
+                                                    break;
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            rowError = true;
+                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                            {
+                                                ImportId = importDetails.ImportId,
+                                                RowNumber = row,
+                                                Details = columns[col].ToString() + " : " + ex.Message
+                                            });
+                                        }
+                                    }
+                                    #region Validation of data in the row
+                                    // Forwarder column cannot be empty
+                                    if (String.IsNullOrEmpty(shipment.Forwarder))
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - Forwarder cannot be empty"
+                                        });
+                                    }
+                                    // EQPID column cannot be empty
+                                    if (String.IsNullOrEmpty(mainTool.EQPID))
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - EQID or EQPID cannot be empty"
+                                        });
+                                    }
+                                    // Vendor column cannot be empty
+                                    if (String.IsNullOrEmpty(mainTool.Vendor))
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - Vendor cannot be empty"
+                                        });
+                                    }
+                                    // TradeTerm column cannot be empty
+                                    if (String.IsNullOrEmpty(mainTool.TradeTerm))
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - TradeTerm or Incoterm cannot be empty"
+                                        });
+                                    }
+                                    // FCADate date column cannot be empty
+                                    if (mainTool.FCADate == null)
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - FCADate cannot be empty"
+                                        });
+                                    }
+                                    // Move in date column cannot be empty
+                                    if (mainTool.MIDate == null)
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - Move in date cannot be empty"
+                                        });
+                                    }
+                                    // FCADate date cannot be later than move in date
+                                    if (mainTool.FCADate != null && mainTool.MIDate != null && mainTool.FCADate > mainTool.MIDate)
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - FCADate cannot be later than move in date"
+                                        });
+                                    }
+                                    // Country column cannot be empty
+                                    if (String.IsNullOrEmpty(shipment.Country))
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - Country cannot be empty"
+                                        });
+                                    }
+                                    // Mode column cannot be empty
+                                    if (String.IsNullOrEmpty(shipment.Mode))
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = "Validation error - Mode cannot be empty"
+                                        });
+                                    }
+                                    // Forwarder must be in the list of configured forwarders
+                                    List<String> forwarderList = DAL_AccessLayer.ConfigurationList("Forwarder", "Lookup", null, null, 0, 2).Select(config => config.Value).ToList();
+                                    if (!String.IsNullOrEmpty(shipment.Forwarder) && !forwarderList.Contains(shipment.Forwarder))
+                                    {
+                                        rowError = true;
+                                        DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                        {
+                                            ImportId = importDetails.ImportId,
+                                            RowNumber = row,
+                                            Details = $"Validation error - Forwarder ({shipment.Forwarder}) is not in the list of configured forwarders"
+                                        });
+                                    }
+                                    #endregion
+
+                                    if (rowError)
+                                    {
+                                        errors++;
                                     }
                                     else
                                     {
-                                        MainTool mainTool = new MainTool() { CreatedDateTime = DateTime.Now };
-                                        ShipmentDetails shipment = new ShipmentDetails();
-                                        for (int col = 0; col < columns.Length; col++)
+                                        try
                                         {
-                                            try
+                                            #region Check change in data in the row
+                                            MainTool currentTool = DAL_AccessLayer.FindMainTool(mainTool.PONumber, mainTool.EQPID);
+
+                                            if (currentTool != null)
                                             {
-                                                switch (Regex.Replace(columns[col].ToString().ToUpper(), @"\t|\n|\r", ""))
+                                                bool shipmentChanged = false;
+                                                bool toolChanged = CheckToolChange(mainTool, currentTool, Userid, importDetails.ImportId, row);
+                                                if (toolChanged)
                                                 {
-                                                    case "PO NUMBER":
-                                                        mainTool.PONumber = dataRow[col].ToString();
-                                                        break;
-                                                    case "AREA":
-                                                        mainTool.Area = dataRow[col].ToString();
-                                                        break;
-                                                    case "ENTITY":
-                                                    case "TYPE - SAP":
-                                                        mainTool.Entity = dataRow[col].ToString();
-                                                        break;
-                                                    case "REMARK":
-                                                    case "REMARKS":
-                                                    case "TYPE OF TOOLS":
-                                                        mainTool.Remarks = dataRow[col].ToString();
-                                                        break;
-                                                    case "VENDOR":
-                                                        mainTool.Vendor = dataRow[col].ToString();
-                                                        break;
-                                                    case "VEQPID":
-                                                        mainTool.VEQPID = dataRow[col].ToString();
-                                                        break;
-                                                    case "EQPID":
-                                                    case "UMC EQID":
-                                                        mainTool.EQPID = dataRow[col].ToString();
-                                                        shipment.EQPID = dataRow[col].ToString();
-                                                        break;
-                                                    case "MODEL":
-                                                    case "TOOL MODEL":
-                                                        mainTool.Model = dataRow[col].ToString();
-                                                        break;
-                                                    case "PO DESCRIPTION":
-                                                        break;
-                                                    case "TRADE TERM":
-                                                    case "INCOTERM":
-                                                        mainTool.TradeTerm = dataRow[col].ToString();
-                                                        break;
-                                                    case "COUNTRY":
-                                                        shipment.Country = dataRow[col].ToString();
-                                                        break;
-                                                    case "MODE":
-                                                        shipment.Mode = dataRow[col].ToString();
-                                                        break;
-                                                    case "IEB ACTION":
-                                                        break;
-                                                    case "Y24 PRIORITY":
-                                                        mainTool.Priority = false;//Convert.ToBoolean(dataRow[col]);
-                                                        break;
-                                                    case "M/I DATE":
-                                                    case "MOVE IN DATE":
-                                                        mainTool.MIDate = dataRow[col] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dataRow[col]);
-                                                        break;
-                                                    case "MOVE IN DAY":
-                                                        break;
-                                                    case "FCA DATE":
-                                                        mainTool.FCADate = dataRow[col] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dataRow[col]);
-                                                        break;
-                                                    case "FCA DAY":
-                                                        break;
-                                                    case "ETA DATE":
-                                                        shipment.Planned_SG_Arrival = dataRow[col] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dataRow[col]);
-                                                        break;
-                                                    case "ETA DAY":
-                                                        break;
-                                                    case "FREIGHT DETAILS":
-                                                        break;
-                                                    case "DUAL PICK UP LOCATION?":
-                                                        shipment.DualPickup = ConvertToBoolean(dataRow[col]);
-                                                        break;
-                                                    case "IF YES, PLS INDICATE":
-                                                        break;
-                                                    case "TEMP CONTROL":
-                                                    case "TEMP CONTOL":
-                                                        shipment.Temperature = ConvertToBoolean(dataRow[col]);
-                                                        break;
-                                                    case "HUMIDITY CONTROL":
-                                                    case "HUMIDITY CONTOL":
-                                                        shipment.Humidity = ConvertToBoolean(dataRow[col]);
-                                                        break;
-                                                    case "DG CARGO":
-                                                        break;
-                                                    case "> 56M3":
-                                                        break;
-                                                    case "21-55M3":
-                                                        break;
-                                                    case "< 20M3":
-                                                        break;
-                                                    case "NEED PERMIT?":
-                                                    case "NEED PERMIT FOR IMPORT?":
-                                                        shipment.Permit = ConvertToBoolean(dataRow[col]);
-                                                        break;
-                                                    case "NEED POLICE ESCORTS?":
-                                                    case "NEED POLICE ESSCORTS?":
-                                                        shipment.Escort = ConvertToBoolean(dataRow[col]);
-                                                        break;
-                                                    case "FORWARDER":
-                                                    case "APPOINTED FORWARDER":
-                                                        shipment.Forwarder = dataRow[col].ToString();
-                                                        break;
-                                                    case "STATUS":
-                                                        break;
+                                                    DAL_AccessLayer.UpdateMainTool(currentTool);
                                                 }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                rowError = true;
-                                                DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                                ShipmentDetails currentShipment = DAL_AccessLayer.FindShipmentInfo(currentTool);
+                                                if (currentShipment != null)
                                                 {
-                                                    ImportId = importDetails.ImportId,
-                                                    RowNumber = row,
-                                                    Details = columns[col].ToString() + " : " + ex.Message
-                                                });
-                                            }
-                                        }
-                                        #region Validation of data in the row
-                                        if (String.IsNullOrEmpty(shipment.Forwarder))
-                                        {
-                                            rowError = true;
-                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                            {
-                                                ImportId = importDetails.ImportId,
-                                                RowNumber = row,
-                                                Details = "Validation error - Forwarder cannot be empty"
-                                            });
-                                        }
-                                        if (String.IsNullOrEmpty(mainTool.EQPID))
-                                        {
-                                            rowError = true;
-                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                            {
-                                                ImportId = importDetails.ImportId,
-                                                RowNumber = row,
-                                                Details = "Validation error - EQID or EQPID cannot be empty"
-                                            });
-                                        }
-                                        if (String.IsNullOrEmpty(mainTool.Vendor))
-                                        {
-                                            rowError = true;
-                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                            {
-                                                ImportId = importDetails.ImportId,
-                                                RowNumber = row,
-                                                Details = "Validation error - Vendor cannot be empty"
-                                            });
-                                        }
-                                        if (String.IsNullOrEmpty(mainTool.TradeTerm))
-                                        {
-                                            rowError = true;
-                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                            {
-                                                ImportId = importDetails.ImportId,
-                                                RowNumber = row,
-                                                Details = "Validation error - TradeTerm or Incoterm cannot be empty"
-                                            });
-                                        }
-                                        if (mainTool.FCADate == null)
-                                        {
-                                            rowError = true;
-                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                            {
-                                                ImportId = importDetails.ImportId,
-                                                RowNumber = row,
-                                                Details = "Validation error - FCADate cannot be empty"
-                                            });
-                                        }
-                                        if (String.IsNullOrEmpty(shipment.Country))
-                                        {
-                                            rowError = true;
-                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                            {
-                                                ImportId = importDetails.ImportId,
-                                                RowNumber = row,
-                                                Details = "Validation error - Country cannot be empty"
-                                            });
-                                        }
-                                        if (String.IsNullOrEmpty(shipment.Mode))
-                                        {
-                                            rowError = true;
-                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
-                                            {
-                                                ImportId = importDetails.ImportId,
-                                                RowNumber = row,
-                                                Details = "Validation error - Mode cannot be empty"
-                                            });
-                                        }
-                                        #endregion
-
-                                        if (rowError)
-                                        {
-                                            errors++;
-                                        }
-                                        else
-                                        {
-                                            try
-                                            {
-                                                MainTool currentTool = DAL_AccessLayer.FindMainTool(mainTool.PONumber, mainTool.EQPID);
-
-                                                #region Check change in data in the row
-                                                if (currentTool != null)
-                                                {
-                                                    bool rowChanged = false;
-                                                    if (mainTool.FCADate != currentTool.FCADate)
+                                                    shipmentChanged = CheckShipmentChange(shipment, currentShipment, Userid, importDetails.ImportId, row);
+                                                    if (shipmentChanged)
                                                     {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "FCADate",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-
-                                                        currentTool.Previous_FCA_Changes = currentTool.FCADate;
-                                                        currentTool.FCADate = mainTool.FCADate;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.Area != currentTool.Area)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "Area",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.Area = mainTool.Area;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.Entity != currentTool.Entity)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "Entity",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.Entity = mainTool.Entity;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.Model != currentTool.Model)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "Model",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.Model = mainTool.Model;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.Priority != currentTool.Priority)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "Priority",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.Priority = mainTool.Priority;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.Remarks != currentTool.Remarks)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "Remarks",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.Remarks = mainTool.Remarks;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.VEQPID != currentTool.VEQPID)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "VEQPID",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.VEQPID = mainTool.VEQPID;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.Vendor != currentTool.Vendor)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "Vendor",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.Vendor = mainTool.Vendor;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.MIDate != currentTool.MIDate)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "MIDate",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.MIDate = mainTool.MIDate;
-                                                        rowChanged = true;
-                                                    }
-                                                    if (mainTool.TradeTerm != currentTool.TradeTerm)
-                                                    {
-                                                        DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                        {
-                                                            ImportId = importDetails.ImportId,
-                                                            Active_Type = "Updated",
-                                                            Column_Name = "TradeTerm",
-                                                            RowNumber = row,
-                                                            UserId = Userid
-                                                        });
-                                                        currentTool.TradeTerm = mainTool.TradeTerm;
-                                                        rowChanged = true;
-                                                    }
-                                                    ShipmentDetails currentShipment = DAL_AccessLayer.FindShipmentInfo(currentTool.Id);
-                                                    if (currentShipment != null)
-                                                    {
-                                                        if (shipment.Country != currentShipment.Country)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Country",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Country = shipment.Country;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.Mode != currentShipment.Mode)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Mode",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Mode = shipment.Mode;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.Planned_SG_Arrival != currentShipment.Planned_SG_Arrival)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Planned_SG_Arrival",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Planned_SG_Arrival = shipment.Planned_SG_Arrival;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.DualPickup != currentShipment.DualPickup)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "DualPickup",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.DualPickup = shipment.DualPickup;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.Temperature != currentShipment.Temperature)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Temperature",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Temperature = shipment.Temperature;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.Humidity != currentShipment.Humidity)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Humidity",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Humidity = shipment.Humidity;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.Permit != currentShipment.Permit)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Permit",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Permit = shipment.Permit;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.Escort != currentShipment.Escort)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Escort",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Escort = shipment.Escort;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (shipment.Forwarder != currentShipment.Forwarder)
-                                                        {
-                                                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                                                            {
-                                                                ImportId = importDetails.ImportId,
-                                                                Active_Type = "Updated",
-                                                                Column_Name = "Forwarder",
-                                                                RowNumber = row,
-                                                                UserId = Userid
-                                                            });
-                                                            currentShipment.Forwarder = shipment.Forwarder;
-                                                            rowChanged = true;
-                                                        }
-                                                        if (rowChanged)
-                                                        {
-                                                            DAL_AccessLayer.UpdateShipmentInfo(currentShipment);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        shipment.ToolId = currentTool.Id;
-                                                        DAL_AccessLayer.AddShipmentInfo(shipment);
-                                                    }
-                                                    if (rowChanged)
-                                                    {
-                                                        DAL_AccessLayer.UpdateMainTool(currentTool);
-                                                        updatedRecords++;
-                                                    }
-                                                    else
-                                                    {
-                                                        unchangedRecords++;
+                                                        DAL_AccessLayer.UpdateShipmentInfo(currentShipment);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    DAL_AccessLayer.AddMainTool(mainTool);
-                                                    shipment.ToolId = mainTool.Id;
+                                                    shipmentChanged = true;
+                                                    shipment.ToolId = currentTool.Id;
+                                                    DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                                                    {
+                                                        ImportId = importDetails.ImportId,
+                                                        Activity = "Insert",
+                                                        Column_Name = null,
+                                                        Details = $"Insert New Shipment for Tool PO Number = {currentTool.PONumber}, EQPID = {currentTool.EQPID}",
+                                                        RowNumber = row,
+                                                        UserId = Userid
+                                                    });
                                                     DAL_AccessLayer.AddShipmentInfo(shipment);
-                                                    newRecords++;
                                                 }
-                                                #endregion
+                                                if (toolChanged || shipmentChanged)
+                                                {
+                                                    updatedRecords++;
+                                                }
+                                                else
+                                                {
+                                                    unchangedRecords++;
+                                                }
                                             }
-                                            catch (Exception ex)
+                                            else
                                             {
-                                                rowError = true;
-                                                DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
                                                 {
                                                     ImportId = importDetails.ImportId,
+                                                    Activity = "Insert",
+                                                    Column_Name = null,
+                                                    Details = $"Insert New Tool PO Number = {mainTool.PONumber}, EQPID = {mainTool.EQPID}",
                                                     RowNumber = row,
-                                                    Details = " Unexpected Error : Please contact the Administrator. Error Message = " + ex.Message + ""
+                                                    UserId = Userid
                                                 });
+                                                DAL_AccessLayer.AddMainTool(mainTool);
+                                                shipment.ToolId = mainTool.Id;
+                                                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                                                {
+                                                    ImportId = importDetails.ImportId,
+                                                    Activity = "Insert",
+                                                    Column_Name = null,
+                                                    Details = $"Insert New Shipment for Tool PO Number = {mainTool.PONumber}, EQPID = {mainTool.EQPID}",
+                                                    RowNumber = row,
+                                                    UserId = Userid
+                                                });
+                                                DAL_AccessLayer.AddShipmentInfo(shipment);
+                                                newRecords++;
                                             }
+                                            #endregion
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            rowError = true;
+                                            DAL_AccessLayer.AddImportError(new ImportErrorDetails
+                                            {
+                                                ImportId = importDetails.ImportId,
+                                                RowNumber = row,
+                                                Details = $"Unexpected Error : Please contact the Administrator. Error Message = {ex.Message}"
+                                            });
                                         }
                                     }
-                                    if (row % 100 == 0)
-                                    {
-                                        // Update the status every 100 rows processed
-                                        importDetails.Details = newRecords + " new records; " + updatedRecords + " records updated; " + unchangedRecords + " records unchanged" + (errors != 0 ? "; " + errors + " row errors" : "");
-                                        importDetails.Status = "Processing";
-                                        DAL_AccessLayer.UpdateImport(importDetails);
-                                    }
                                 }
-                                importDetails.Details = newRecords + " new records; " + updatedRecords + " records updated; " + unchangedRecords + " records unchanged" + (errors != 0 ? "; " + errors + " row errors" : "");
-                                importDetails.Status = (errors != 0 ? "Failed" : "Success");
-                                DAL_AccessLayer.UpdateImport(importDetails);
+                                if (row % 100 == 0)
+                                {
+                                    // Update the status every 100 rows processed
+                                    importDetails.Details = $"{newRecords} new records; {updatedRecords} records updated; {unchangedRecords} records unchanged; {errors} row errors";
+                                    importDetails.Status = "Processing";
+                                    DAL_AccessLayer.UpdateImport(importDetails);
+                                }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            importDetails.Details = ex.Message;
-                            importDetails.Status = "Failed";
+                            importDetails.Details = $"{newRecords} new records; {updatedRecords} records updated; {unchangedRecords} records unchanged; {errors} row errors";
+                            importDetails.Status = (errors != 0 ? "Failed" : "Success");
                             DAL_AccessLayer.UpdateImport(importDetails);
                         }
-                    //});
+                    }
+                    catch (Exception ex)
+                    {
+                        importDetails.Details = ex.Message;
+                        importDetails.Status = "Failed";
+                        DAL_AccessLayer.UpdateImport(importDetails);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1237,6 +1059,288 @@ namespace BHSK_TMS_API.Controllers
                 importDetails.Status = "Failed";
                 DAL_AccessLayer.UpdateImport(importDetails);
             }
+        }
+
+        private static bool CheckShipmentChange(ShipmentDetails shipment, ShipmentDetails currentShipment, string Userid, int importId, int row)
+        {
+            bool changed = false;
+            if (shipment.Country != currentShipment.Country)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Country",
+                    Details = currentShipment.Country + "→" + shipment.Country,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Country = shipment.Country;
+                changed = true;
+            }
+            if (shipment.Mode != currentShipment.Mode)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Mode",
+                    Details = currentShipment.Mode + "→" + shipment.Mode,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Mode = shipment.Mode;
+                changed = true;
+            }
+            if (shipment.Planned_SG_Arrival != currentShipment.Planned_SG_Arrival)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Planned_SG_Arrival",
+                    Details = currentShipment.Planned_SG_Arrival + "→" + shipment.Planned_SG_Arrival,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Planned_SG_Arrival = shipment.Planned_SG_Arrival;
+                changed = true;
+            }
+            if (shipment.DualPickup != currentShipment.DualPickup)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "DualPickup",
+                    Details = currentShipment.DualPickup + "→" + shipment.DualPickup,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.DualPickup = shipment.DualPickup;
+                changed = true;
+            }
+            if (shipment.Temperature != currentShipment.Temperature)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Temperature",
+                    Details = currentShipment.Temperature + "→" + shipment.Temperature,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Temperature = shipment.Temperature;
+                changed = true;
+            }
+            if (shipment.Humidity != currentShipment.Humidity)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Humidity",
+                    Details = currentShipment.Humidity + "→" + shipment.Humidity,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Humidity = shipment.Humidity;
+                changed = true;
+            }
+            if (shipment.Permit != currentShipment.Permit)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Permit",
+                    Details = currentShipment.Permit + "→" + shipment.Permit,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Permit = shipment.Permit;
+                changed = true;
+            }
+            if (shipment.Escort != currentShipment.Escort)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Escort",
+                    Details = currentShipment.Escort + "→" + shipment.Escort,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Escort = shipment.Escort;
+                changed = true;
+            }
+            if (shipment.Forwarder != currentShipment.Forwarder)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Forwarder",
+                    Details = currentShipment.Forwarder + "→" + shipment.Forwarder,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentShipment.Forwarder = shipment.Forwarder;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool CheckToolChange(MainTool mainTool, MainTool currentTool, string Userid, int importId, int row)
+        {
+            bool changed = false;
+            if (mainTool.FCADate != currentTool.FCADate)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "FCADate",
+                    Details = currentTool.FCADate + "→" + mainTool.FCADate,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+
+                currentTool.Previous_FCA_Changes = currentTool.FCADate;
+                currentTool.FCADate = mainTool.FCADate;
+                changed = true;
+            }
+            if (mainTool.Area != currentTool.Area)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Area",
+                    Details = currentTool.Area + "→" + mainTool.Area,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Area = mainTool.Area;
+                changed = true;
+            }
+            if (mainTool.Entity != currentTool.Entity)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Entity",
+                    Details = currentTool.Entity + "→" + mainTool.Entity,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Entity = mainTool.Entity;
+                changed = true;
+            }
+            if (mainTool.Model != currentTool.Model)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Model",
+                    Details = currentTool.Model + "→" + mainTool.Model,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Model = mainTool.Model;
+                changed = true;
+            }
+            if (mainTool.Priority != currentTool.Priority)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Priority",
+                    Details = currentTool.Priority + "→" + mainTool.Priority,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Priority = mainTool.Priority;
+                changed = true;
+            }
+            if (mainTool.Remarks != currentTool.Remarks)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Remarks",
+                    Details = currentTool.Remarks + "→" + mainTool.Remarks,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Remarks = mainTool.Remarks;
+                changed = true;
+            }
+            if (mainTool.VEQPID != currentTool.VEQPID)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "VEQPID",
+                    Details = currentTool.VEQPID + "→" + mainTool.VEQPID,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.VEQPID = mainTool.VEQPID;
+                changed = true;
+            }
+            if (mainTool.Vendor != currentTool.Vendor)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Vendor",
+                    Details = currentTool.Vendor + "→" + mainTool.Vendor,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Vendor = mainTool.Vendor;
+                changed = true;
+            }
+            if (mainTool.MIDate != currentTool.MIDate)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "MIDate",
+                    Details = currentTool.MIDate + "→" + mainTool.MIDate,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.MIDate = mainTool.MIDate;
+                changed = true;
+            }
+            if (mainTool.TradeTerm != currentTool.TradeTerm)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "TradeTerm",
+                    Details = currentTool.TradeTerm + "→" + mainTool.TradeTerm,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.TradeTerm = mainTool.TradeTerm;
+                changed = true;
+            }
+
+            return changed;
         }
 
         private bool ConvertToBoolean(object obj)
@@ -1610,18 +1714,11 @@ namespace BHSK_TMS_API.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("api/bhskapi/getImportUpdatedetails")]
-        public IEnumerable<ApplicationModel.ImportDetailsLog> getImportUpdatedetails(int ImportId, int Page)
+        [Route("api/bhskapi/getimportdetailslog")]
+        public IEnumerable<ImportDetailsLog> GetImportDetailsLog(int ImportId, int Page)
         {
 
-            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var Userid = identity.Name;
-            var result = (dynamic)null;
-            if (Userid != "")
-            {
-                result = DAL_AccessLayer.GetImportUpdateDetails(ImportId, Page, 3);
-            }
-            return result;
+            return DAL_AccessLayer.GetImportDetailsLog(ImportId, Page);
         }
 
         [Authorize]
@@ -2000,7 +2097,8 @@ namespace BHSK_TMS_API.Controllers
                         }
                     }
                 }
-
+                ShipmentDetails currentShipment = DAL_AccessLayer.FindShipmentInfo(shipmentDetails.Id);
+                CheckShipmentChange(shipmentDetails, currentShipment, userId, -1, -1);
                 DAL_AccessLayer.UpdateShipmentInfo(shipmentDetails);
 
                 return "The shipment has been successfully updated.";
@@ -2035,7 +2133,7 @@ namespace BHSK_TMS_API.Controllers
         [HttpGet]
         [Route("api/bhskapi/getconfigurationdetails")]
 
-        public IEnumerable<ApplicationModel.ConfigurationDetails> getConfigurationDetails([Optional] string Name, [Optional] string Type, [Optional] string Value, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.ConfigurationDetails> GetConfigurationDetails([Optional] string Name, [Optional] string Type, [Optional] string Value, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
