@@ -300,7 +300,6 @@ namespace BHSK_TMS_API.ApplicationModel
         public int Id { get; set; }
         public int ToolId { get; set; }
         public string EQPID { get; set; }
-        public string TradeTerm { get; set; }
         public string Country { get; set; }
         public string Forwarder { get; set; }
         public bool Temperature { get; set; }
@@ -311,6 +310,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public int TotalArea { get; set; }
         public int NumCrates { get; set; }
         public int TotalVolume { get; set; }
+        public int TotalWeight { get; set; }
         public DateTime? Pickup_Planned { get; set; }
         public DateTime? Pickup_Actual { get; set; }
         public string FlightVesselNumber { get; set; }
@@ -358,11 +358,11 @@ namespace BHSK_TMS_API.ApplicationModel
         public string Entity { get; set; }
         public string Area { get; set; }
         public string Model { get; set; }
-        public DateTime MIDate { get; set; }
-        public DateTime Actual_MoveInDate { get; set; }
-        public DateTime FCADate { get; set; }
-        public DateTime Previous_FCA_Changes { get; set; }
-        public DateTime CreateDateTime { get; set; }
+        public DateTime? MIDate { get; set; }
+        public DateTime? Actual_MoveInDate { get; set; }
+        public DateTime? FCADate { get; set; }
+        public DateTime? Previous_FCA_Changes { get; set; }
+        public DateTime? CreatedDateTime { get; set; }
         public string Remarks { get; set; }
         public bool Priority { get; set; }
     }
@@ -388,24 +388,26 @@ namespace BHSK_TMS_API.ApplicationModel
     public class ImportDetails
     {
         public int ImportId { get; set; }
-        public DateTime ImportDate { get; set; }
+        public DateTime? ImportDate { get; set; }
         public string UserId { get; set; }
         public string Details { get; set; }
         public string Status { get; set; }
     }
     public class ImportErrorDetails
     {
+        public int id { get; set; }
         public int ImportId { get; set; }
         public int RowNumber { get; set; }
         public string Details { get; set; }
 
     }
-    public class ImportUpdateDetails
+    public class ImportDetailsLog
     {
+        public int Id { get; set; }
         public int ImportId { get; set; }
         public string Column_Name { get; set; }
         public string Active_Type { get; set; }
-        public string RowNumber { get; set; }
+        public int RowNumber { get; set; }
         public string UserId { get; set; }
     }
     public class ConfigurationDetails
