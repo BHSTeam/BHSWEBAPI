@@ -689,8 +689,8 @@ namespace BHSK_TMS_API.Controllers
                     string filePath = HttpContext.Current.Server.MapPath("~/Excels/" + Inputfile.FileName);
                     Inputfile.SaveAs(filePath);
 
-                    Task.Run(() =>
-                    {
+                    //Task.Run(() =>
+                    //{
                         try
                         {
                             using (var reader = ExcelReaderFactory.CreateReader(File.OpenRead(filePath)))
@@ -1228,7 +1228,7 @@ namespace BHSK_TMS_API.Controllers
                             importDetails.Status = "Failed";
                             DAL_AccessLayer.UpdateImport(importDetails);
                         }
-                    });
+                    //});
                 }
             }
             catch (Exception ex)
@@ -1967,9 +1967,9 @@ namespace BHSK_TMS_API.Controllers
                 DAL_AccessLayer.AddShipmentInfo(shipmentDetails);
                 return "The shipment has been successfully added.";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return "Something Went Wrong!, The shipment creation has failed.";
+                return "Something Went Wrong!, The shipment creation has failed : " + ex.Message;
             }
 
 
@@ -2005,9 +2005,9 @@ namespace BHSK_TMS_API.Controllers
 
                 return "The shipment has been successfully updated.";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return "Something Went Wrong!, The shipment update has failed.";
+                return "Something Went Wrong!, The shipment update has failed : " + ex.Message;
             }
         }
 
