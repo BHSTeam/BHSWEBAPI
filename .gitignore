@@ -356,3 +356,5 @@ MigrationBackup/
 /BHSK_TMS_API/Excels/EntityDiagram.jpg
 /BHSK_TMS_API/Excels/Tool List_20240418_modified.xls
 /BHSK_TMS_API/Excels/Tool List_20240418_modified.xlsx
+/BHSK_TMS_API/Excels/Tool List_20240418_modified_FCApopulated.xlsx
+/.gitignore
