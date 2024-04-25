@@ -1724,7 +1724,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getshipmentdetailslist")]
-        public IEnumerable<ApplicationModel.ShipmentDetails> GetShipmentDetailsList([Optional] string Eqpid, [Optional] string TradeTerm, [Optional] string Country, [Optional] string Mode, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.ShipmentDetails> GetShipmentDetailsList([Optional] string ToolId, [Optional] string Eqpid, [Optional] string TradeTerm, [Optional] string Country, [Optional] string Mode, [Optional] string Search_keyword, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1732,7 +1732,7 @@ namespace BHSK_TMS_API.Controllers
             var result = (dynamic)null;
             if (Userid != "")
             {
-                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, Eqpid, TradeTerm, Country, Mode, Search_keyword, Page, 1);
+                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, ToolId, Eqpid, TradeTerm, Country, Mode, Search_keyword, Page, 1);
             }
             return result;
         }
