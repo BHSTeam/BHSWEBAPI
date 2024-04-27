@@ -591,7 +591,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getuserlist")]
-        public IEnumerable<ApplicationModel.UserInfo> GetUserList([Optional] string UserName, [Optional] string EmailId, [Optional] string Contact, [Optional] string Workgroup, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.UserInfo> GetUserList(string UserName = null, string EmailId = null, string Contact = null, string Workgroup = null, string Search_keyword = null, int Page = 1)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -691,7 +691,7 @@ namespace BHSK_TMS_API.Controllers
 
                     try
                     {
-                        using (var reader = ExcelReaderFactory.CreateReader(File.OpenRead(filePath)))
+                        using (var reader = ExcelReaderFactory.CreateReader(Inputfile.InputStream))
                         {
                             DataSet dataSet = reader.AsDataSet();
                             DataTable dataTable = dataSet.Tables["Tool and Accessories List"];
@@ -707,7 +707,7 @@ namespace BHSK_TMS_API.Controllers
                                 else
                                 {
                                     MainTool mainTool = new MainTool() { CreatedDateTime = DateTime.Now };
-                                    ShipmentDetails shipment = new ShipmentDetails();
+                                    Shipment shipment = new Shipment();
                                     for (int col = 0; col < columns.Length; col++)
                                     {
                                         try
@@ -721,13 +721,18 @@ namespace BHSK_TMS_API.Controllers
                                                     mainTool.Area = dataRow[col].ToString();
                                                     break;
                                                 case "ENTITY":
-                                                case "TYPE - SAP":
                                                     mainTool.Entity = dataRow[col].ToString();
+                                                    break;
+                                                case "TYPE - SAP":
+                                                    mainTool.SubType = dataRow[col].ToString();
                                                     break;
                                                 case "REMARK":
                                                 case "REMARKS":
+                                                    mainTool.Remarks = dataRow[col].ToString();
+                                                    break;
                                                 case "TYPE OF TOOLS":
                                                     mainTool.Remarks = dataRow[col].ToString();
+                                                    mainTool.Type = dataRow[col].ToString();
                                                     break;
                                                 case "VENDOR":
                                                     mainTool.Vendor = dataRow[col].ToString();
@@ -745,6 +750,10 @@ namespace BHSK_TMS_API.Controllers
                                                     mainTool.Model = dataRow[col].ToString();
                                                     break;
                                                 case "PO DESCRIPTION":
+                                                    mainTool.PODescription = dataRow[col].ToString();
+                                                    break;
+                                                case "Buyer Assignment":
+                                                    mainTool.Custom1 = dataRow[col].ToString();
                                                     break;
                                                 case "TRADE TERM":
                                                 case "INCOTERM":
@@ -757,9 +766,10 @@ namespace BHSK_TMS_API.Controllers
                                                     shipment.Mode = dataRow[col].ToString();
                                                     break;
                                                 case "IEB ACTION":
+                                                    mainTool.Custom2 = dataRow[col].ToString();
                                                     break;
                                                 case "Y24 PRIORITY":
-                                                    mainTool.Priority = false;//Convert.ToBoolean(dataRow[col]);
+                                                    mainTool.Priority = ConvertToBoolean(dataRow[col]);
                                                     break;
                                                 case "M/I DATE":
                                                 case "MOVE IN DATE":
@@ -793,6 +803,7 @@ namespace BHSK_TMS_API.Controllers
                                                     shipment.Humidity = ConvertToBoolean(dataRow[col]);
                                                     break;
                                                 case "DG CARGO":
+                                                    shipment.DangerousCargo = ConvertToBoolean(dataRow[col]);
                                                     break;
                                                 case "> 56M3":
                                                     break;
@@ -822,7 +833,7 @@ namespace BHSK_TMS_API.Controllers
                                             DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                             {
                                                 ImportId = importDetails.ImportId,
-                                                RowNumber = row,
+                                                RowNumber = row + 1,
                                                 Details = columns[col].ToString() + " : " + ex.Message
                                             });
                                         }
@@ -835,7 +846,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - Forwarder cannot be empty"
                                         });
                                     }
@@ -846,7 +857,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - EQID or EQPID cannot be empty"
                                         });
                                     }
@@ -857,7 +868,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - Vendor cannot be empty"
                                         });
                                     }
@@ -868,7 +879,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - TradeTerm or Incoterm cannot be empty"
                                         });
                                     }
@@ -879,7 +890,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - FCADate cannot be empty"
                                         });
                                     }
@@ -890,7 +901,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - Move in date cannot be empty"
                                         });
                                     }
@@ -901,7 +912,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - FCADate cannot be later than move in date"
                                         });
                                     }
@@ -912,7 +923,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - Country cannot be empty"
                                         });
                                     }
@@ -923,7 +934,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = "Validation error - Mode cannot be empty"
                                         });
                                     }
@@ -935,7 +946,7 @@ namespace BHSK_TMS_API.Controllers
                                         DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                         {
                                             ImportId = importDetails.ImportId,
-                                            RowNumber = row,
+                                            RowNumber = row + 1,
                                             Details = $"Validation error - Forwarder ({shipment.Forwarder}) is not in the list of configured forwarders"
                                         });
                                     }
@@ -955,15 +966,15 @@ namespace BHSK_TMS_API.Controllers
                                             if (currentTool != null)
                                             {
                                                 bool shipmentChanged = false;
-                                                bool toolChanged = CheckToolChange(mainTool, currentTool, Userid, importDetails.ImportId, row);
+                                                bool toolChanged = CheckToolChange(mainTool, currentTool, Userid, importDetails.ImportId, row + 1);
                                                 if (toolChanged)
                                                 {
                                                     DAL_AccessLayer.UpdateMainTool(currentTool);
                                                 }
-                                                ShipmentDetails currentShipment = DAL_AccessLayer.FindShipmentInfo(currentTool);
+                                                Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(currentTool);
                                                 if (currentShipment != null)
                                                 {
-                                                    shipmentChanged = CheckShipmentChange(shipment, currentShipment, Userid, importDetails.ImportId, row);
+                                                    shipmentChanged = CheckShipmentChange(shipment, currentShipment, Userid, importDetails.ImportId, row + 1);
                                                     if (shipmentChanged)
                                                     {
                                                         DAL_AccessLayer.UpdateShipmentInfo(currentShipment);
@@ -979,10 +990,10 @@ namespace BHSK_TMS_API.Controllers
                                                         Activity = "Insert",
                                                         Column_Name = null,
                                                         Details = $"Insert New Shipment for Tool PO Number = {currentTool.PONumber}, EQPID = {currentTool.EQPID}",
-                                                        RowNumber = row,
+                                                        RowNumber = row + 1,
                                                         UserId = Userid
                                                     });
-                                                    DAL_AccessLayer.AddShipmentInfo(shipment);
+                                                    DAL_AccessLayer.AddShipment(shipment);
                                                 }
                                                 if (toolChanged || shipmentChanged)
                                                 {
@@ -1001,7 +1012,7 @@ namespace BHSK_TMS_API.Controllers
                                                     Activity = "Insert",
                                                     Column_Name = null,
                                                     Details = $"Insert New Tool PO Number = {mainTool.PONumber}, EQPID = {mainTool.EQPID}",
-                                                    RowNumber = row,
+                                                    RowNumber = row + 1,
                                                     UserId = Userid
                                                 });
                                                 DAL_AccessLayer.AddMainTool(mainTool);
@@ -1012,10 +1023,10 @@ namespace BHSK_TMS_API.Controllers
                                                     Activity = "Insert",
                                                     Column_Name = null,
                                                     Details = $"Insert New Shipment for Tool PO Number = {mainTool.PONumber}, EQPID = {mainTool.EQPID}",
-                                                    RowNumber = row,
+                                                    RowNumber = row + 1,
                                                     UserId = Userid
                                                 });
-                                                DAL_AccessLayer.AddShipmentInfo(shipment);
+                                                DAL_AccessLayer.AddShipment(shipment);
                                                 newRecords++;
                                             }
                                             #endregion
@@ -1026,7 +1037,7 @@ namespace BHSK_TMS_API.Controllers
                                             DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                             {
                                                 ImportId = importDetails.ImportId,
-                                                RowNumber = row,
+                                                RowNumber = row + 1,
                                                 Details = $"Unexpected Error : Please contact the Administrator. Error Message = {ex.Message}"
                                             });
                                         }
@@ -1061,7 +1072,7 @@ namespace BHSK_TMS_API.Controllers
             }
         }
 
-        private static bool CheckShipmentChange(ShipmentDetails shipment, ShipmentDetails currentShipment, string Userid, int importId, int row)
+        private static bool CheckShipmentChange(Shipment shipment, Shipment currentShipment, string Userid, int importId, int row)
         {
             bool changed = false;
             if (shipment.Country != currentShipment.Country)
@@ -1357,7 +1368,11 @@ namespace BHSK_TMS_API.Controllers
             {
                 return true;
             }
-            else if (Regex.IsMatch(obj.ToString(), @"\b[nN]o?\b|\b[fF](alse)?\b|\b0\b|\b#?[nN]\/?[aA]\b"))
+            else if (Regex.IsMatch(obj.ToString(), @"\b[nN]o?\b|\b[fF](alse)?\b|\b#?[nN][aA]\b"))
+            {
+                return false;
+            }
+            else if (obj.ToString() == "0")
             {
                 return false;
             }
@@ -1368,290 +1383,13 @@ namespace BHSK_TMS_API.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        [Route("api/bhskapi/uploadtoolsdetails")]
-        public string UploadToolsDetails()
-        {
-            ExcelDataReader.IExcelDataReader reader = null;
-            var path = "";
-            int intNewRec = 0;
-            int intUptRec = 0;
-            int intFail = 0;
-            var result = (dynamic)null;
-            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var Userid = identity.Name;
-            try
-            {
-                string message = "";
-                HttpResponseMessage ResponseMessage = null;
-                var httpRequest = HttpContext.Current.Request;
-                HttpPostedFile Inputfile = null;
-                Stream FileStream = null;
-                string conStr = "";
-                string RowErrors = "";
-                DataSet dsexcelRecords1 = new DataSet();
-                if (httpRequest.Files.Count > 0 && httpRequest.Files[0].FileName.ToString() != "")
-                {
-                    Inputfile = httpRequest.Files[0];
-                    FileStream = Inputfile.InputStream;
-
-                    path = HttpContext.Current.Server.MapPath("~/Excels/" + Inputfile.FileName);
-                    Inputfile.SaveAs(path);
-
-                    if (Inputfile != null && FileStream != null)
-                    {
-                        if (Inputfile.FileName.EndsWith(".xls"))
-                        {
-                            reader = ExcelDataReader.ExcelReaderFactory.CreateBinaryReader(FileStream);
-                            conStr = System.Configuration.ConfigurationManager.ConnectionStrings["Excel03ConString"].ConnectionString;
-                        }
-                        else if (Inputfile.FileName.EndsWith(".xlsx"))
-                        {
-                            reader = ExcelDataReader.ExcelReaderFactory.CreateOpenXmlReader(FileStream);
-                            conStr = System.Configuration.ConfigurationManager.ConnectionStrings["Excel07ConString"].ConnectionString;
-                        }
-                        else
-                        {
-                            message = "The file format is not supported.";
-                            var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
-                        }
-
-                        if (conStr != "")
-                        {
-                            conStr = String.Format(conStr, path, "YES");
-                            OleDbConnection connExcel = new OleDbConnection(conStr);
-                            OleDbCommand cmdExcel = new OleDbCommand();
-                            OleDbDataAdapter oda = new OleDbDataAdapter();
-                            DataTable dsexcelRecords = new DataTable();
-
-
-                            cmdExcel.Connection = connExcel;
-                            //Get the name of First Sheet
-                            connExcel.Open();
-                            DataTable dtExcelSchema;
-                            dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                            string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
-                            connExcel.Close();
-
-                            //Read Data from First Sheet
-                            connExcel.Open();
-                            cmdExcel.CommandText = "SELECT * From [" + SheetName + "]";
-                            oda.SelectCommand = cmdExcel;
-                            oda.Fill(dsexcelRecords);
-                            connExcel.Close();
-
-                            Inputfile.InputStream.Dispose();
-                            Inputfile.InputStream.Close();
-
-                            //DataSet ds = new DataSet();
-                            //ds = reader.AsDataSet();
-                            //reader.Close();
-
-                            //DataTable dsexcelRecords = ds.Tables[0];
-                            int RowNum = 0;
-                            int ChkRow = 0;
-                            if (dsexcelRecords != null && dsexcelRecords.Rows.Count > 0)
-                            {
-                                for (int row = 0; row < dsexcelRecords.Rows.Count; row++)
-                                {
-                                    ShipmentDetails objShipment = new ShipmentDetails();
-                                    string Remarks = "";
-                                    string Area = "";
-                                    string Entity = "";
-                                    string EQPID = "";
-                                    string Vendor = "";
-                                    string Model = "";
-                                    string TradeTerm = "";
-                                    string Country = "";
-                                    string Mode = "";
-                                    string MIDate = "";
-                                    string FCADate = "";
-                                    string TempContol = "0";
-                                    string Humidity = "0";
-                                    string M3Val1 = "";
-                                    string M3Val2 = "";
-                                    string M3Val3 = "";
-                                    string Permit = "0";
-                                    string Esscorts = "0";
-                                    string Forwarder = "0";
-                                    string Status = "";
-                                    string PONumber = "";
-
-                                    try
-                                    {
-                                        for (int col = 0; col < dsexcelRecords.Columns.Count; col++)
-                                        {
-                                            string colname = dsexcelRecords.Columns[col].ColumnName;
-                                            if (dsexcelRecords.Rows[row][col].ToString() != "")
-                                            {
-                                                if (colname == "Remark" || colname == "Column0" || colname == "Type of Tools")
-                                                {
-                                                    Remarks = dsexcelRecords.Rows[row][col].ToString();
-                                                    ChkRow = 1;
-                                                }
-                                                else if (colname == "Area" || colname == "Column1")
-                                                {
-                                                    Area = dsexcelRecords.Rows[row][col].ToString();
-                                                    ChkRow = 1;
-                                                }
-                                                else if (colname == "Entity" || colname == "Column2" || colname == "Type - SAP")
-                                                {
-                                                    Entity = dsexcelRecords.Rows[row][col].ToString();
-                                                    ChkRow = 1;
-                                                }
-                                                else if (colname == "EQPID" || colname == "Column3" || colname == "UMC EQID")
-                                                {
-                                                    EQPID = dsexcelRecords.Rows[row][col].ToString();
-                                                    ChkRow = 1;
-                                                }
-                                                else if (colname == "Vendor" || colname == "Column4")
-                                                {
-                                                    Vendor = dsexcelRecords.Rows[row][col].ToString();
-                                                    ChkRow = 1;
-                                                }
-                                                else if (colname == "Model" || colname == "Column5" || colname == "Tool Model")
-                                                    Model = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Trade Term" || colname == "Column6" || colname == "Incoterm")
-                                                    TradeTerm = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Country" || colname == "Column7")
-                                                    Country = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Mode" || colname == "Column8")
-                                                    Mode = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "M / I Date\n(12 / 21)" || colname == "M/I Date_(12/21)" || colname == "Column9" || colname == "Move in Date")
-                                                    MIDate = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "FCA Date\n(12 / 21)" || colname == "FCA Date_(12/21)" || colname == "Column10" || colname == "FCA Date 2")
-                                                    FCADate = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Temp Contol" || colname == "Column11")
-                                                    TempContol = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Humidity Contol" || colname == "Column12")
-                                                    Humidity = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "> 56m3" || colname == "Column13")
-                                                    M3Val1 = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "21-55m3" || colname == "Column14")
-                                                    M3Val2 = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "< 20m3" || colname == "Column15")
-                                                    M3Val3 = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Need Permit?" || colname == "Column16")
-                                                    Permit = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Need Police Esscorts?" || colname == "Column18")
-                                                    Esscorts = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Appointed Forwarder" || colname == "Column19")
-                                                    Forwarder = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "Status" || colname == "Column20")
-                                                    Status = dsexcelRecords.Rows[row][col].ToString();
-                                                else if (colname == "PO Number")
-                                                    PONumber = dsexcelRecords.Rows[row][col].ToString();
-                                                if (TempContol == "")
-                                                    TempContol = "0";
-                                                if (Humidity == "")
-                                                    Humidity = "0";
-                                                if (Permit == "")
-                                                    Permit = "0";
-                                                if (Esscorts == "")
-                                                    Esscorts = "0";
-                                                if (Forwarder == "")
-                                                    Forwarder = "0";
-                                            }
-
-                                        }
-                                        if (ChkRow == 1)
-                                        {
-                                            RowNum = RowNum + 1;
-                                            string inputString = EQPID + "," + EQPID + "," + Vendor + "," + Entity + "," + Area + "," + Model + "," + MIDate + "," + FCADate + "," + Remarks + "," + TradeTerm + "," + Country + "," + Mode + "," + TempContol + "," + Humidity + "," + M3Val1 + "," + M3Val2 + "," + M3Val3 + "," + Permit + "," + Esscorts + "," + Forwarder + "," + Status + "," + Userid;
-                                            result = DAL_AccessLayer.ShipmentInfo_Add(PONumber, EQPID, EQPID, Vendor, Entity, Area, Model, DateTime.Parse(MIDate), DateTime.Parse(FCADate), Remarks, TradeTerm, Country, Mode, TempContol, Humidity, M3Val1, M3Val2, M3Val3, Permit, Esscorts, Forwarder, Status, RowNum, Userid);
-                                            if (result.Record_Status == 1)
-                                                intNewRec = intNewRec + 1;
-                                            if (result.Record_Status == 2)
-                                                intUptRec = intUptRec + 1;
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        string err = ex.Message;
-                                        if (err.Contains("bit"))
-                                        {
-                                            RowErrors = "Data Converson Errors: Data type :data type bit";
-                                        }
-                                        else if (err.Contains("Date"))
-                                        {
-                                            RowErrors = "Data Converson Errors: Data type :data type Datetime";
-                                        }
-                                        else
-                                        {
-                                            RowErrors = "Data Converson Errors";
-                                        }
-
-                                        //var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, RowErrors, RowNum, Userid);
-                                        intFail = intFail + 1;
-                                    }
-                                }
-
-                                if (result.StatusCode == 1)
-                                {
-
-                                    //if (System.IO.File.Exists(path))
-                                    //{
-                                    //    System.IO.File.Delete(path);
-                                    //}
-                                    dtExcelSchema.Dispose();
-
-                                    var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 1, RowErrors, 0, Userid);
-                                    message = "The Excel file has been successfully uploaded.";
-
-                                    FileStream.Close();
-                                    reader.Dispose();
-                                    reader.Close();
-                                }
-                                else
-                                {
-                                    message = "Something Went Wrong!, The Excel file uploaded has fiald.";
-                                    var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
-                                }
-
-                            }
-                            else
-                            {
-                                message = "Selected file is empty.";
-                                var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        message = "Invalid File.";
-                        var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
-                    }
-
-                }
-                else
-                {
-                    message = "File does not selected!, Please check it.";
-                    var result1 = DAL_AccessLayer.Import_DetailsUpdate(intNewRec, intUptRec, intFail, 2, message, 0, Userid);
-                    ResponseMessage = Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                return message;
-
-            }
-            catch (Exception)
-            {
-
-                //if (System.IO.File.Exists(path))
-                //{
-                //    System.IO.File.Delete(path);
-                //}
-                throw;
-            }
-        }
-
-        [Authorize]
         [HttpGet]
         [Route("api/bhskapi/gettoolslist")]
         /**
          * param name="Fromdate" - format of parameter yyyy-MM-ddTHH:mm:ss
          * param name="Todate" - format of parameter yyyy-MM-ddTHH:mm:ss
          */
-        public IEnumerable<MainTool> GetToolsList([Optional] string Area, [Optional] string Vendor, [Optional] DateTime? Fromdate, [Optional] DateTime? Todate, [Optional] string Search_keyword, int Page)
+        public IEnumerable<MainTool> GetToolsList(string Area = null, string Vendor = null, DateTime? Fromdate = null, DateTime? Todate = null, string Search_keyword = null, int Page = 1)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1698,8 +1436,8 @@ namespace BHSK_TMS_API.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("api/bhskapi/getImporterrordetails")]
-        public IEnumerable<ApplicationModel.ImportErrorDetails> getImporterrordetails(int ImportId, int Page)
+        [Route("api/bhskapi/getimporterrordetails")]
+        public IEnumerable<ApplicationModel.ImportErrorDetails> GetImportErrorDetails(int ImportId, int Page)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1724,7 +1462,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getshipmentdetailslist")]
-        public IEnumerable<ApplicationModel.ShipmentDetails> GetShipmentDetailsList([Optional] string ToolId, [Optional] string Eqpid, [Optional] string TradeTerm, [Optional] string Country, [Optional] string Mode, [Optional] string Search_keyword, int Page)
+        public IEnumerable<ApplicationModel.Shipment> GetShipmentDetailsList(string ToolId, string Eqpid = null, string TradeTerm = null, string Country = null, string Mode = null, string Search_keyword = null, int Page = 1)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1875,7 +1613,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getexportshipmentdetailslist")]
-        public IEnumerable<ApplicationModel.ShipmentListDetails> getexportshipmentdetailslist(string Eqpid, string ToolId, string TradeTerm, string Country, string Mode, string Search_keyword)
+        public IEnumerable<ApplicationModel.Shipment> GetExportShipmentDetailsList(string Eqpid = null, string ToolId = null, string TradeTerm = null, string Country = null, string Mode = null, string Search_keyword = null)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -2036,7 +1774,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/addshipmentdetails")]
-        public string AddShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
+        public string AddShipmentDetails([FromBody] Shipment shipmentDetails)
         {
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = identity.Name;
@@ -2061,7 +1799,7 @@ namespace BHSK_TMS_API.Controllers
                 }
 
 
-                DAL_AccessLayer.AddShipmentInfo(shipmentDetails);
+                DAL_AccessLayer.AddShipment(shipmentDetails);
                 return "The shipment has been successfully added.";
             }
             catch (Exception ex)
@@ -2075,7 +1813,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpPost]
         [Route("api/bhskapi/updateshipmentdetails")]
-        public string UpdateShipmentDetails([FromBody] ShipmentDetails shipmentDetails)
+        public string UpdateShipmentDetails([FromBody] Shipment shipmentDetails)
         {
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = identity.Name;
@@ -2097,7 +1835,7 @@ namespace BHSK_TMS_API.Controllers
                         }
                     }
                 }
-                ShipmentDetails currentShipment = DAL_AccessLayer.FindShipmentInfo(shipmentDetails.Id);
+                Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(shipmentDetails.Id);
                 CheckShipmentChange(shipmentDetails, currentShipment, userId, -1, -1);
                 DAL_AccessLayer.UpdateShipmentInfo(shipmentDetails);
 

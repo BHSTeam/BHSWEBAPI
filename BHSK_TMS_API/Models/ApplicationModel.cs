@@ -295,7 +295,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public int SplitNumCrates { get; set; }
     }
 
-    public class ShipmentDetails
+    public class Shipment
     {
         public int Id { get; set; }
         public int ToolId { get; set; }
@@ -332,6 +332,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public bool DocumentReady { get; set; }
         public bool CargoReady { get; set; }
         public bool DualPickup { get; set; }
+        public bool DangerousCargo { get; set; }
         public Collection<Attachment> Documents { get; set; }
         public Collection<DamageDetails> Damages { get; set; }
     }
@@ -365,24 +366,11 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime? CreatedDateTime { get; set; }
         public string Remarks { get; set; }
         public bool Priority { get; set; }
-    }
-
-
-    public class ShipmentListDetails
-    {
-        public int Id { get; set; }
-        public string EQPID { get; set; }
-        public string MasterAWB { get; set; }
-        public string HAWB { get; set; }
-        public string TradeTerm { get; set; }
-        public string Country { get; set; }
-        public string Mode { get; set; }
-        public int NumCrates { get; set; }
-        public bool Temperature { get; set; }
-        public bool Humidity { get; set; }
-        public bool Permit { get; set; }
-        public bool Escort { get; set; }
-        public string Forwarder { get; set; }
+        public string Type { get; set; }
+        public string SubType { get; set; }
+        public string PODescription { get; set; }
+        public string Custom1 { get; set; }
+        public string Custom2 { get; set; }
     }
 
     public class ImportDetails

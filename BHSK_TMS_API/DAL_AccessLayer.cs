@@ -494,14 +494,14 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_Get_MainToolsList_UMC_API : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.ShipmentDetails> GetShipmentDetailsList(string UserId, string ToolId, string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page, int Opt)
+        public static List<ApplicationModel.Shipment> GetShipmentDetailsList(string UserId, string ToolId, string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page, int Opt)
         {
             try
             {
                 using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
                 {
                     conn.Open();
-                    List<ShipmentDetails> result = conn.Query<ApplicationModel.ShipmentDetails>(
+                    List<Shipment> result = conn.Query<ApplicationModel.Shipment>(
                             "sp_Get_ShipmentsList_UMC_API", new
                             {
                                 @UserId = UserId,
@@ -515,7 +515,7 @@ namespace BHSK_TMS_API
                                 @Opt = Opt
                             }, commandType: CommandType.StoredProcedure).ToList();
 
-                    foreach (ShipmentDetails item in result) {
+                    foreach (Shipment item in result) {
                         item.Documents = new Collection<Attachment>(conn.Query<Attachment>("SELECT * FROM UMC_AttachmentDetails WHERE Shipment_Id=" + item.Id).ToList());
                         item.Damages = new Collection<DamageDetails>(conn.Query<DamageDetails>("SELECT * FROM UMC_Damages WHERE Shipment_Id=" + item.Id).ToList());
                         foreach (DamageDetails damageDetails in item.Damages)
@@ -928,7 +928,7 @@ namespace BHSK_TMS_API
                     conn.Open();
 
                     rowsAffected = conn.Execute("UPDATE UMC_Tools SET EQPID=@EQPID,VEQPID=@VEQPID,Vendor=@Vendor,Entity=@Entity,Area=@Area,Model=@Model,MIDate=@MIDate,FCADate=@FCADate,Remarks=@Remarks," +
-                        "Actual_MoveInDate=@Actual_MoveInDate,Previous_FCA_Changes=@Previous_FCA_Changes,CreatedDateTime=@CreatedDateTime,Priority=@Priority,PONumber=@PONumber,TradeTerm=@TradeTerm WHERE Id=@Id", mainTool);
+                        "Actual_MoveInDate=@Actual_MoveInDate,Previous_FCA_Changes=@Previous_FCA_Changes,CreatedDateTime=@CreatedDateTime,Priority=@Priority,PONumber=@PONumber,TradeTerm=@TradeTerm,Type=@Type,SubType=@SubType,PODescription=@PODescription,Custom1=@Custom1,Custom2=@Custom2 WHERE Id=@Id", mainTool);
                 }
             }
             catch (Exception ex)
@@ -949,8 +949,8 @@ namespace BHSK_TMS_API
                 {
                     conn.Open();
 
-                    int toolId = (int)conn.ExecuteScalar("INSERT INTO UMC_Tools (EQPID,VEQPID,Vendor,Entity,Area,Model,MIDate,FCADate,Remarks,Actual_MoveInDate,Previous_FCA_Changes,CreatedDatetime,Priority,PONumber,TradeTerm)" +
-                        " OUTPUT INSERTED.ID VALUES (@EQPID,@VEQPID,@Vendor,@Entity,@Area,@Model,@MIDate,@FCADate,@Remarks,@Actual_MoveInDate,@Previous_FCA_Changes,@CreatedDateTime,@Priority,@PONumber,@TradeTerm)", mainTool);
+                    int toolId = (int)conn.ExecuteScalar("INSERT INTO UMC_Tools (EQPID,VEQPID,Vendor,Entity,Area,Model,MIDate,FCADate,Remarks,Actual_MoveInDate,Previous_FCA_Changes,CreatedDatetime,Priority,PONumber,TradeTerm,Type,SubType,PODescription,Custom1,Custom2)" +
+                        " OUTPUT INSERTED.ID VALUES (@EQPID,@VEQPID,@Vendor,@Entity,@Area,@Model,@MIDate,@FCADate,@Remarks,@Actual_MoveInDate,@Previous_FCA_Changes,@CreatedDateTime,@Priority,@PONumber,@TradeTerm,@Type,@SubType,@PODescription,@Custom1,@Custom2)", mainTool);
                     mainTool.Id = toolId;
                 }
             }
@@ -1067,7 +1067,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static cOutMessage ShipmentInfo_Add(string PONumber, string EQPID, string VEQPID, string Vendor, string Entity, string Area, string Model, DateTime MIDate, DateTime FCADate, string Remarks, string TradeTerm, string Country, string Mode, string TempContol, string Humidity, string M3Val1, string M3Val2, string M3Val3, string Permit, string Esscorts, string Forwarder, string Status, int RowNumber, string CreatedBy)
+        public static Shipment FindShipmentInfo(int id)
         {
             try
             {
@@ -1075,53 +1075,7 @@ namespace BHSK_TMS_API
                 {
                     conn.Open();
 
-                    var result = conn.Query<cOutMessage>(
-                            "sp_UMC_ShipmentDetails_Insert_Update", new
-                            {
-                                @PONumber = PONumber,
-                                @EQPID = EQPID,
-                                @VEQPID = VEQPID,
-                                @Vendor = Vendor,
-                                @Entity = Entity,
-                                @Area = Area,
-                                @Model = Model,
-                                @MIDate = MIDate,
-                                @FCADate = FCADate,
-                                @Remarks = Remarks,
-                                @TradeTerm = TradeTerm,
-                                @Country = Country,
-                                @Mode = Mode,
-                                @TempContol = TempContol,
-                                @Humidity = Humidity,
-                                @M3Val1 = M3Val1,
-                                @M3Val2 = M3Val2,
-                                @M3Val3 = M3Val3,
-                                @Permit = Permit,
-                                @Esscorts = Esscorts,
-                                @Forwarder = Forwarder,
-                                @Status = Status,
-                                @RowNumber = RowNumber,
-                                @CreatedBy = CreatedBy
-
-                            }, commandType: CommandType.StoredProcedure).FirstOrDefault();
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(" sp_UMC_ShipmentDetails_Insert_Update : " + ex.Message);
-            }
-        }
-
-        public static ShipmentDetails FindShipmentInfo(int id)
-        {
-            try
-            {
-                using (var conn = new SqlConnection(Config.Helpers.Config.BHSDBConnection))
-                {
-                    conn.Open();
-
-                    ShipmentDetails result = conn.Query<ShipmentDetails>("SELECT * FROM UMC_Shipments WHERE Id=@Id", new { Id = id }).FirstOrDefault();
+                    Shipment result = conn.Query<Shipment>("SELECT * FROM UMC_Shipments WHERE Id=@Id", new { Id = id }).FirstOrDefault();
                     return result;
                 }
             }
@@ -1130,7 +1084,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" FindShipmentInfo : " + ex.Message);
             }
         }
-        public static ShipmentDetails FindShipmentInfo(MainTool tool)
+        public static Shipment FindShipmentInfo(MainTool tool)
         {
             try
             {
@@ -1138,7 +1092,7 @@ namespace BHSK_TMS_API
                 {
                     conn.Open();
 
-                    ShipmentDetails result = conn.Query<ShipmentDetails>("SELECT * FROM UMC_Shipments WHERE ToolId=@ToolId", new { ToolId = tool.Id }).FirstOrDefault();
+                    Shipment result = conn.Query<Shipment>("SELECT * FROM UMC_Shipments WHERE ToolId=@ToolId", new { ToolId = tool.Id }).FirstOrDefault();
                     return result;
                 }
             }
@@ -1148,7 +1102,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static void UpdateShipmentInfo(ShipmentDetails shipmentDetails)
+        public static void UpdateShipmentInfo(Shipment shipmentDetails)
         {
             try
             {
@@ -1162,7 +1116,7 @@ namespace BHSK_TMS_API
                         "NumCrates=@NumCrates,TotalVolume=@TotalVolume,TotalWeight=@TotalWeight,Pickup_Planned=@Pickup_Planned,Pickup_Actual=@Pickup_Actual,AirShippingLine=@AirShippingLine," +
                         "FlightVesselNumber=@FlightVesselNumber,FlightVessel_ETD=@FlightVessel_ETD,FlightVessel_ATD=@FlightVessel_ATD,Transit=@Transit,Transit_ETA=@Transit_ETA,Transit_ATA=@Transit_ATA," +
                         "Transit_ETD=@Transit_ETD,Transit_ATD=@Transit_ATD,MasterAWB=@MasterAWB,HAWB=@HAWB,SG_ETA=@Planned_SG_Arrival,Confirm_SG_ETA=@Confirm_SG_Arrival,SG_ATA=@Actual_SG_Arrival," +
-                        "DocumentReady=@DocumentReady,CargoReady=@CargoReady,Delayed=@Delayed,DelayedReason=@DelayedReason,DualPickup=@DualPickup" +
+                        "DocumentReady=@DocumentReady,CargoReady=@CargoReady,Delayed=@Delayed,DelayedReason=@DelayedReason,DualPickup=@DualPickup,DG=@DangerousCargo" +
                         " WHERE id=@Id",
                         shipmentDetails,
                         transaction
@@ -1189,7 +1143,7 @@ namespace BHSK_TMS_API
                 throw new Exception(" UpdateShipmentInfo : " + ex.Message);
             }
         }
-        public static void AddShipmentInfo(ShipmentDetails shipmentDetails)
+        public static void AddShipment(Shipment shipmentDetails)
         {
             try
             {
@@ -1200,11 +1154,11 @@ namespace BHSK_TMS_API
                     SqlTransaction transaction = conn.BeginTransaction();
                     int shipmentId = (int)conn.ExecuteScalar("INSERT INTO UMC_Shipments" +
                         " (EQPID,Country,Forwarder,Temperature,Humidity,Permit,Escort,Mode,TotalArea,NumCrates,TotalVolume,TotalWeight,Pickup_Planned,Pickup_Actual,AirShippingLine,FlightVesselNumber," +
-                        "FlightVessel_ETD,FlightVessel_ATD,Transit,Transit_ETA,Transit_ATA,Transit_ETD,Transit_ATD,MasterAWB,HAWB,SG_ETA,Confirm_SG_ETA,SG_ATA,DocumentReady,CargoReady,Delayed,DelayedReason,DualPickup,ToolId)" +
+                        "FlightVessel_ETD,FlightVessel_ATD,Transit,Transit_ETA,Transit_ATA,Transit_ETD,Transit_ATD,MasterAWB,HAWB,SG_ETA,Confirm_SG_ETA,SG_ATA,DocumentReady,CargoReady,Delayed,DelayedReason,DualPickup,DG,ToolId)" +
                         " OUTPUT INSERTED.ID" +
                         " VALUES (@EQPID,@Country,@Forwarder,@Temperature,@Humidity,@Permit,@Escort,@Mode,@TotalArea,@NumCrates,@TotalVolume,@TotalWeight,@Pickup_Planned,@Pickup_Actual,@AirShippingLine," +
                         "@FlightVesselNumber,@FlightVessel_ETD,@FlightVessel_ATD,@Transit,@Transit_ETA,@Transit_ATA,@Transit_ETD,@Transit_ATD,@MasterAWB,@HAWB,@Planned_SG_Arrival,@Confirm_SG_Arrival,@Actual_SG_Arrival," +
-                        "@DocumentReady,@CargoReady,@Delayed,@DelayedReason,@DualPickup,@ToolId)",
+                        "@DocumentReady,@CargoReady,@Delayed,@DelayedReason,@DualPickup,@DangerousCargo,@ToolId)",
                         shipmentDetails,
                         transaction
                         );
