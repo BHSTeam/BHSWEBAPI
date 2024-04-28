@@ -966,18 +966,18 @@ namespace BHSK_TMS_API.Controllers
                                             if (currentTool != null)
                                             {
                                                 bool shipmentChanged = false;
-                                                bool toolChanged = CheckToolChange(mainTool, currentTool, Userid, importDetails.ImportId, row + 1);
+                                                bool toolChanged = CheckToolChanges(mainTool, currentTool, Userid, importDetails.ImportId, row + 1);
                                                 if (toolChanged)
                                                 {
-                                                    DAL_AccessLayer.UpdateMainTool(currentTool);
+                                                    DAL_AccessLayer.UpdateMainTool(mainTool);
                                                 }
                                                 Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(currentTool);
                                                 if (currentShipment != null)
                                                 {
-                                                    shipmentChanged = CheckShipmentChange(shipment, currentShipment, Userid, importDetails.ImportId, row + 1);
+                                                    shipmentChanged = CheckShipmentChanges(shipment, currentShipment, Userid, importDetails.ImportId, row + 1);
                                                     if (shipmentChanged)
                                                     {
-                                                        DAL_AccessLayer.UpdateShipmenDetails(currentShipment);
+                                                        DAL_AccessLayer.UpdateShipmenDetails(shipment);
                                                     }
                                                 }
                                                 else
@@ -1072,7 +1072,7 @@ namespace BHSK_TMS_API.Controllers
             }
         }
 
-        private static bool CheckShipmentChange(Shipment shipment, Shipment currentShipment, string Userid, int importId, int row)
+        private static bool CheckShipmentChanges(Shipment shipment, Shipment currentShipment, string Userid, int importId, int row)
         {
             bool changed = false;
             if (shipment.Country != currentShipment.Country)
@@ -1086,7 +1086,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Country = shipment.Country;
                 changed = true;
             }
             if (shipment.Mode != currentShipment.Mode)
@@ -1100,7 +1099,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Mode = shipment.Mode;
                 changed = true;
             }
             if (shipment.Planned_SG_Arrival != currentShipment.Planned_SG_Arrival)
@@ -1114,7 +1112,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Planned_SG_Arrival = shipment.Planned_SG_Arrival;
                 changed = true;
             }
             if (shipment.DualPickup != currentShipment.DualPickup)
@@ -1128,7 +1125,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.DualPickup = shipment.DualPickup;
                 changed = true;
             }
             if (shipment.Temperature != currentShipment.Temperature)
@@ -1142,7 +1138,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Temperature = shipment.Temperature;
                 changed = true;
             }
             if (shipment.Humidity != currentShipment.Humidity)
@@ -1156,7 +1151,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Humidity = shipment.Humidity;
                 changed = true;
             }
             if (shipment.Permit != currentShipment.Permit)
@@ -1170,7 +1164,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Permit = shipment.Permit;
                 changed = true;
             }
             if (shipment.Escort != currentShipment.Escort)
@@ -1184,7 +1177,19 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Escort = shipment.Escort;
+                changed = true;
+            }
+            if (shipment.DangerousCargo != currentShipment.DangerousCargo)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "DangerousCargo",
+                    Details = currentShipment.DangerousCargo + "→" + shipment.DangerousCargo,
+                    RowNumber = row,
+                    UserId = Userid
+                });
                 changed = true;
             }
             if (shipment.Forwarder != currentShipment.Forwarder)
@@ -1198,14 +1203,338 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentShipment.Forwarder = shipment.Forwarder;
+                changed = true;
+            }
+            if (shipment.Actual_SG_Arrival != currentShipment.Actual_SG_Arrival)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Actual_SG_Arrival",
+                    Details = currentShipment.Actual_SG_Arrival + "→" + shipment.Actual_SG_Arrival,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.AirShippingLine != currentShipment.AirShippingLine)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "AirShippingLine",
+                    Details = currentShipment.AirShippingLine + "→" + shipment.AirShippingLine,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.CargoReady != currentShipment.CargoReady)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "CargoReady",
+                    Details = currentShipment.CargoReady + "→" + shipment.CargoReady,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Confirm_SG_Arrival != currentShipment.Confirm_SG_Arrival)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Confirm_SG_Arrival",
+                    Details = currentShipment.Confirm_SG_Arrival + "→" + shipment.Confirm_SG_Arrival,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Delayed != currentShipment.Delayed)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Delayed",
+                    Details = currentShipment.Delayed + "→" + shipment.Delayed,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.DelayedReason != currentShipment.DelayedReason)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "DelayedReason",
+                    Details = currentShipment.DelayedReason + "→" + shipment.DelayedReason,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.DocumentReady != currentShipment.DocumentReady)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "DocumentReady",
+                    Details = currentShipment.DocumentReady + "→" + shipment.DocumentReady,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.EQPID != currentShipment.EQPID)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "EQPID",
+                    Details = currentShipment.EQPID + "→" + shipment.EQPID,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.FlightVesselNumber != currentShipment.FlightVesselNumber)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "FlightVesselNumber",
+                    Details = currentShipment.FlightVesselNumber + "→" + shipment.FlightVesselNumber,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.FlightVessel_ATD != currentShipment.FlightVessel_ATD)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "FlightVessel_ATD",
+                    Details = currentShipment.FlightVessel_ATD + "→" + shipment.FlightVessel_ATD,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.FlightVessel_ETD != currentShipment.FlightVessel_ETD)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "FlightVessel_ETD",
+                    Details = currentShipment.FlightVessel_ETD + "→" + shipment.FlightVessel_ETD,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.HAWB != currentShipment.HAWB)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "HAWB",
+                    Details = currentShipment.HAWB + "→" + shipment.HAWB,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.MasterAWB != currentShipment.MasterAWB)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "MasterAWB",
+                    Details = currentShipment.MasterAWB + "→" + shipment.MasterAWB,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.NumCrates != currentShipment.NumCrates)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "NumCrates",
+                    Details = currentShipment.NumCrates + "→" + shipment.NumCrates,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Pickup_Actual != currentShipment.Pickup_Actual)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Pickup_Actual",
+                    Details = currentShipment.Pickup_Actual + "→" + shipment.Pickup_Actual,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Pickup_Planned != currentShipment.Pickup_Planned)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Pickup_Planned",
+                    Details = currentShipment.Pickup_Planned + "→" + shipment.Pickup_Planned,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.ToolId != currentShipment.ToolId)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "ToolId",
+                    Details = currentShipment.ToolId + "→" + shipment.ToolId,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.TotalArea != currentShipment.TotalArea)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "TotalArea",
+                    Details = currentShipment.TotalArea + "→" + shipment.TotalArea,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.TotalVolume != currentShipment.TotalVolume)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "TotalVolume",
+                    Details = currentShipment.TotalVolume + "→" + shipment.TotalVolume,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.TotalWeight != currentShipment.TotalWeight)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "TotalWeight",
+                    Details = currentShipment.TotalWeight + "→" + shipment.TotalWeight,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Transit != currentShipment.Transit)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Transit",
+                    Details = currentShipment.Transit + "→" + shipment.Transit,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Transit_ATA != currentShipment.Transit_ATA)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Transit_ATA",
+                    Details = currentShipment.Transit_ATA + "→" + shipment.Transit_ATA,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Transit_ATD != currentShipment.Transit_ATD)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Transit_ATD",
+                    Details = currentShipment.Transit_ATD + "→" + shipment.Transit_ATD,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Transit_ETA != currentShipment.Transit_ETA)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Transit_ETA",
+                    Details = currentShipment.Transit_ETA + "→" + shipment.Transit_ETA,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (shipment.Transit_ETD != currentShipment.Transit_ETD)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Transit_ETD",
+                    Details = currentShipment.Transit_ETD + "→" + shipment.Transit_ETD,
+                    RowNumber = row,
+                    UserId = Userid
+                });
                 changed = true;
             }
 
             return changed;
         }
 
-        private static bool CheckToolChange(MainTool mainTool, MainTool currentTool, string Userid, int importId, int row)
+        private static bool CheckToolChanges(MainTool mainTool, MainTool currentTool, string Userid, int importId, int row)
         {
             bool changed = false;
             if (mainTool.Actual_MoveInDate != currentTool.Actual_MoveInDate)
@@ -1219,7 +1548,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Actual_MoveInDate = mainTool.Actual_MoveInDate;
                 changed = true;
             }
             if (mainTool.Area != currentTool.Area)
@@ -1233,7 +1561,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Area = mainTool.Area;
                 changed = true;
             }
             if (mainTool.Custom1 != currentTool.Custom1)
@@ -1247,7 +1574,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Custom1 = mainTool.Custom1;
                 changed = true;
             }
             if (mainTool.Custom2 != currentTool.Custom2)
@@ -1261,7 +1587,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Custom2 = mainTool.Custom2;
                 changed = true;
             }
             if (mainTool.Entity != currentTool.Entity)
@@ -1275,7 +1600,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Entity = mainTool.Entity;
                 changed = true;
             }
             if (mainTool.FCADate != currentTool.FCADate)
@@ -1290,8 +1614,7 @@ namespace BHSK_TMS_API.Controllers
                     UserId = Userid
                 });
 
-                currentTool.Previous_FCA_Changes = currentTool.FCADate;
-                currentTool.FCADate = mainTool.FCADate;
+                mainTool.Previous_FCA_Changes = currentTool.FCADate;
                 changed = true;
             }
             if (mainTool.MIDate != currentTool.MIDate)
@@ -1305,7 +1628,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.MIDate = mainTool.MIDate;
                 changed = true;
             }
             if (mainTool.Model != currentTool.Model)
@@ -1319,7 +1641,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Model = mainTool.Model;
                 changed = true;
             }
             if (mainTool.PODescription != currentTool.PODescription)
@@ -1333,7 +1654,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.PODescription = mainTool.PODescription;
                 changed = true;
             }
             if (mainTool.Priority != currentTool.Priority)
@@ -1347,7 +1667,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Priority = mainTool.Priority;
                 changed = true;
             }
             if (mainTool.Remarks != currentTool.Remarks)
@@ -1361,7 +1680,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Remarks = mainTool.Remarks;
                 changed = true;
             }
             if (mainTool.SubType != currentTool.SubType)
@@ -1375,7 +1693,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.SubType = mainTool.SubType;
                 changed = true;
             }
             if (mainTool.TradeTerm != currentTool.TradeTerm)
@@ -1389,7 +1706,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.TradeTerm = mainTool.TradeTerm;
                 changed = true;
             }
             if (mainTool.Type != currentTool.Type)
@@ -1403,7 +1719,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Type = mainTool.Type;
                 changed = true;
             }
             if (mainTool.Vendor != currentTool.Vendor)
@@ -1417,7 +1732,6 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.Vendor = mainTool.Vendor;
                 changed = true;
             }
             if (mainTool.VEQPID != currentTool.VEQPID)
@@ -1431,7 +1745,45 @@ namespace BHSK_TMS_API.Controllers
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.VEQPID = mainTool.VEQPID;
+                changed = true;
+            }
+            if (mainTool.EQPID != currentTool.EQPID)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "EQPID",
+                    Details = currentTool.EQPID + "→" + mainTool.EQPID,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (mainTool.PONumber != currentTool.PONumber)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "PONumber",
+                    Details = currentTool.PONumber + "→" + mainTool.PONumber,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                changed = true;
+            }
+            if (mainTool.DualPickup != currentTool.DualPickup)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "DualPickup",
+                    Details = currentTool.DualPickup + "→" + mainTool.DualPickup,
+                    RowNumber = row,
+                    UserId = Userid
+                });
                 changed = true;
             }
 
@@ -1920,7 +2272,7 @@ namespace BHSK_TMS_API.Controllers
                     }
                 }
                 Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(shipmentDetails.Id);
-                CheckShipmentChange(shipmentDetails, currentShipment, userId, -1, -1);
+                CheckShipmentChanges(shipmentDetails, currentShipment, userId, -1, -1);
                 DAL_AccessLayer.UpdateShipmenDetails(shipmentDetails);
 
                 return "The shipment has been successfully updated.";
