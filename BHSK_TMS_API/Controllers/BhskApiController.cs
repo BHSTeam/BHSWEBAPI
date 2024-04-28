@@ -969,6 +969,7 @@ namespace BHSK_TMS_API.Controllers
                                                 bool toolChanged = CheckToolChanges(mainTool, currentTool, Userid, importDetails.ImportId, row + 1);
                                                 if (toolChanged)
                                                 {
+                                                    mainTool.Id = currentTool.Id;
                                                     DAL_AccessLayer.UpdateMainTool(mainTool);
                                                 }
                                                 Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(currentTool);
@@ -977,6 +978,7 @@ namespace BHSK_TMS_API.Controllers
                                                     shipmentChanged = CheckShipmentChanges(shipment, currentShipment, Userid, importDetails.ImportId, row + 1);
                                                     if (shipmentChanged)
                                                     {
+                                                        shipment.Id = currentShipment.Id;
                                                         DAL_AccessLayer.UpdateShipmenDetails(shipment);
                                                     }
                                                 }
@@ -1033,7 +1035,7 @@ namespace BHSK_TMS_API.Controllers
                                         }
                                         catch (Exception ex)
                                         {
-                                            rowError = true;
+                                            errors++;
                                             DAL_AccessLayer.AddImportError(new ImportErrorDetails
                                             {
                                                 ImportId = importDetails.ImportId,
