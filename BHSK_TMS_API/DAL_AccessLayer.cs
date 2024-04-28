@@ -494,7 +494,7 @@ namespace BHSK_TMS_API
                 throw new Exception("sp_Get_MainToolsList_UMC_API : " + ex.Message);
             }
         }
-        public static List<ApplicationModel.Shipment> GetShipmentDetailsList(string UserId, string ToolId, string Eqpid, string TradeTerm, string Country, string Mode, string Search_keyword, int Page, int Opt)
+        public static List<ApplicationModel.Shipment> GetShipmentDetailsList(string UserId, string ToolId, string Eqpid, string Country, string Mode, string Search_keyword, int Page, int Opt)
         {
             try
             {
@@ -507,7 +507,6 @@ namespace BHSK_TMS_API
                                 @UserId = UserId,
                                 @ToolId = ToolId,
                                 @Eqpid = Eqpid,
-                                @TradeTerm = TradeTerm,
                                 @Country = Country,
                                 @Mode = Mode,
                                 @Search_keyword = Search_keyword,
@@ -1102,7 +1101,7 @@ namespace BHSK_TMS_API
             }
         }
 
-        public static void UpdateShipmentInfo(Shipment shipmentDetails)
+        public static void UpdateShipmenDetails(Shipment shipmentDetails)
         {
             try
             {

@@ -977,7 +977,7 @@ namespace BHSK_TMS_API.Controllers
                                                     shipmentChanged = CheckShipmentChange(shipment, currentShipment, Userid, importDetails.ImportId, row + 1);
                                                     if (shipmentChanged)
                                                     {
-                                                        DAL_AccessLayer.UpdateShipmentInfo(currentShipment);
+                                                        DAL_AccessLayer.UpdateShipmenDetails(currentShipment);
                                                     }
                                                 }
                                                 else
@@ -1208,20 +1208,18 @@ namespace BHSK_TMS_API.Controllers
         private static bool CheckToolChange(MainTool mainTool, MainTool currentTool, string Userid, int importId, int row)
         {
             bool changed = false;
-            if (mainTool.FCADate != currentTool.FCADate)
+            if (mainTool.Actual_MoveInDate != currentTool.Actual_MoveInDate)
             {
                 DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
                 {
                     ImportId = importId,
                     Activity = "Update",
-                    Column_Name = "FCADate",
-                    Details = currentTool.FCADate + "→" + mainTool.FCADate,
+                    Column_Name = "Actual_MoveInDate",
+                    Details = currentTool.Actual_MoveInDate + "→" + mainTool.Actual_MoveInDate,
                     RowNumber = row,
                     UserId = Userid
                 });
-
-                currentTool.Previous_FCA_Changes = currentTool.FCADate;
-                currentTool.FCADate = mainTool.FCADate;
+                currentTool.Actual_MoveInDate = mainTool.Actual_MoveInDate;
                 changed = true;
             }
             if (mainTool.Area != currentTool.Area)
@@ -1238,6 +1236,34 @@ namespace BHSK_TMS_API.Controllers
                 currentTool.Area = mainTool.Area;
                 changed = true;
             }
+            if (mainTool.Custom1 != currentTool.Custom1)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Custom1",
+                    Details = currentTool.Custom1 + "→" + mainTool.Custom1,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Custom1 = mainTool.Custom1;
+                changed = true;
+            }
+            if (mainTool.Custom2 != currentTool.Custom2)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Custom2",
+                    Details = currentTool.Custom2 + "→" + mainTool.Custom2,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Custom2 = mainTool.Custom2;
+                changed = true;
+            }
             if (mainTool.Entity != currentTool.Entity)
             {
                 DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
@@ -1252,6 +1278,36 @@ namespace BHSK_TMS_API.Controllers
                 currentTool.Entity = mainTool.Entity;
                 changed = true;
             }
+            if (mainTool.FCADate != currentTool.FCADate)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "FCADate",
+                    Details = currentTool.FCADate + "→" + mainTool.FCADate,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+
+                currentTool.Previous_FCA_Changes = currentTool.FCADate;
+                currentTool.FCADate = mainTool.FCADate;
+                changed = true;
+            }
+            if (mainTool.MIDate != currentTool.MIDate)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "MIDate",
+                    Details = currentTool.MIDate + "→" + mainTool.MIDate,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.MIDate = mainTool.MIDate;
+                changed = true;
+            }
             if (mainTool.Model != currentTool.Model)
             {
                 DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
@@ -1264,6 +1320,20 @@ namespace BHSK_TMS_API.Controllers
                     UserId = Userid
                 });
                 currentTool.Model = mainTool.Model;
+                changed = true;
+            }
+            if (mainTool.PODescription != currentTool.PODescription)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "PODescription",
+                    Details = currentTool.PODescription + "→" + mainTool.PODescription,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.PODescription = mainTool.PODescription;
                 changed = true;
             }
             if (mainTool.Priority != currentTool.Priority)
@@ -1294,18 +1364,46 @@ namespace BHSK_TMS_API.Controllers
                 currentTool.Remarks = mainTool.Remarks;
                 changed = true;
             }
-            if (mainTool.VEQPID != currentTool.VEQPID)
+            if (mainTool.SubType != currentTool.SubType)
             {
                 DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
                 {
                     ImportId = importId,
                     Activity = "Update",
-                    Column_Name = "VEQPID",
-                    Details = currentTool.VEQPID + "→" + mainTool.VEQPID,
+                    Column_Name = "SubType",
+                    Details = currentTool.SubType + "→" + mainTool.SubType,
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.VEQPID = mainTool.VEQPID;
+                currentTool.SubType = mainTool.SubType;
+                changed = true;
+            }
+            if (mainTool.TradeTerm != currentTool.TradeTerm)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "TradeTerm",
+                    Details = currentTool.TradeTerm + "→" + mainTool.TradeTerm,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.TradeTerm = mainTool.TradeTerm;
+                changed = true;
+            }
+            if (mainTool.Type != currentTool.Type)
+            {
+                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                {
+                    ImportId = importId,
+                    Activity = "Update",
+                    Column_Name = "Type",
+                    Details = currentTool.Type + "→" + mainTool.Type,
+                    RowNumber = row,
+                    UserId = Userid
+                });
+                currentTool.Type = mainTool.Type;
                 changed = true;
             }
             if (mainTool.Vendor != currentTool.Vendor)
@@ -1322,32 +1420,18 @@ namespace BHSK_TMS_API.Controllers
                 currentTool.Vendor = mainTool.Vendor;
                 changed = true;
             }
-            if (mainTool.MIDate != currentTool.MIDate)
+            if (mainTool.VEQPID != currentTool.VEQPID)
             {
                 DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
                 {
                     ImportId = importId,
                     Activity = "Update",
-                    Column_Name = "MIDate",
-                    Details = currentTool.MIDate + "→" + mainTool.MIDate,
+                    Column_Name = "VEQPID",
+                    Details = currentTool.VEQPID + "→" + mainTool.VEQPID,
                     RowNumber = row,
                     UserId = Userid
                 });
-                currentTool.MIDate = mainTool.MIDate;
-                changed = true;
-            }
-            if (mainTool.TradeTerm != currentTool.TradeTerm)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "TradeTerm",
-                    Details = currentTool.TradeTerm + "→" + mainTool.TradeTerm,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                currentTool.TradeTerm = mainTool.TradeTerm;
+                currentTool.VEQPID = mainTool.VEQPID;
                 changed = true;
             }
 
@@ -1462,7 +1546,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getshipmentdetailslist")]
-        public IEnumerable<ApplicationModel.Shipment> GetShipmentDetailsList(string ToolId, string Eqpid = null, string TradeTerm = null, string Country = null, string Mode = null, string Search_keyword = null, int Page = 1)
+        public IEnumerable<ApplicationModel.Shipment> GetShipmentDetailsList(string ToolId, string Eqpid = null, string Country = null, string Mode = null, string Search_keyword = null, int Page = 1)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1470,7 +1554,7 @@ namespace BHSK_TMS_API.Controllers
             var result = (dynamic)null;
             if (Userid != "")
             {
-                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, ToolId, Eqpid, TradeTerm, Country, Mode, Search_keyword, Page, 1);
+                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, ToolId, Eqpid, Country, Mode, Search_keyword, Page, 1);
             }
             return result;
         }
@@ -1613,7 +1697,7 @@ namespace BHSK_TMS_API.Controllers
         [Authorize]
         [HttpGet]
         [Route("api/bhskapi/getexportshipmentdetailslist")]
-        public IEnumerable<ApplicationModel.Shipment> GetExportShipmentDetailsList(string Eqpid = null, string ToolId = null, string TradeTerm = null, string Country = null, string Mode = null, string Search_keyword = null)
+        public IEnumerable<ApplicationModel.Shipment> GetExportShipmentDetailsList(string Eqpid = null, string ToolId = null, string Country = null, string Mode = null, string Search_keyword = null)
         {
 
             var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
@@ -1621,7 +1705,7 @@ namespace BHSK_TMS_API.Controllers
             var result = (dynamic)null;
             if (Userid != "")
             {
-                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, ToolId, Eqpid, TradeTerm, Country, Mode, Search_keyword, 0, 2);
+                result = DAL_AccessLayer.GetShipmentDetailsList(Userid, ToolId, Eqpid, Country, Mode, Search_keyword, 0, 2);
             }
             return result;
         }
@@ -1837,7 +1921,7 @@ namespace BHSK_TMS_API.Controllers
                 }
                 Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(shipmentDetails.Id);
                 CheckShipmentChange(shipmentDetails, currentShipment, userId, -1, -1);
-                DAL_AccessLayer.UpdateShipmentInfo(shipmentDetails);
+                DAL_AccessLayer.UpdateShipmenDetails(shipmentDetails);
 
                 return "The shipment has been successfully updated.";
             }

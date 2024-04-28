@@ -365,6 +365,7 @@ namespace BHSK_TMS_API.ApplicationModel
         public DateTime? Previous_FCA_Changes { get; set; }
         public DateTime? CreatedDateTime { get; set; }
         public string Remarks { get; set; }
+        public bool DualPickup { get; set; }
         public bool Priority { get; set; }
         public string Type { get; set; }
         public string SubType { get; set; }
