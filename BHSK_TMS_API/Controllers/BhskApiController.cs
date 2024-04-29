@@ -24,6 +24,8 @@ using System.Runtime.InteropServices;
 using System.Data.Entity;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Dynamic;
+using WebGrease.Css.Extensions;
 
 namespace BHSK_TMS_API.Controllers
 {
@@ -706,8 +708,10 @@ namespace BHSK_TMS_API.Controllers
                                 }
                                 else
                                 {
-                                    MainTool mainTool = new MainTool() { CreatedDateTime = DateTime.Now };
-                                    Shipment shipment = new Shipment();
+                                    dynamic mainTool = new ExpandoObject();
+                                    dynamic shipment = new ExpandoObject();
+                                    //MainTool mainTool = new MainTool() { CreatedDateTime = DateTime.Now };
+                                    //Shipment shipment = new Shipment();
                                     for (int col = 0; col < columns.Length; col++)
                                     {
                                         try
@@ -1536,9 +1540,32 @@ namespace BHSK_TMS_API.Controllers
             return changed;
         }
 
-        private static bool CheckToolChanges(MainTool mainTool, MainTool currentTool, string Userid, int importId, int row)
+        private static bool CheckToolChanges(ExpandoObject mainTool, MainTool currentTool, string Userid, int importId, int row)
         {
             bool changed = false;
+            foreach (KeyValuePair<string, object> keyValuePair in mainTool.AsEnumerable()) {
+                switch(keyValuePair.Key)
+                {
+                    case "FCADate":
+                        break;
+                    default:
+                        object currentValue = typeof(MainTool).GetProperty("keyValuePair.Key").GetValue(currentTool);
+                        if (keyValuePair.Value != currentValue)
+                        {
+                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                            {
+                                ImportId = importId,
+                                Activity = "Update",
+                                Column_Name = keyValuePair.Key,
+                                Details = currentValue.ToString() + "→" + keyValuePair.Value.ToString(),
+                                RowNumber = row,
+                                UserId = Userid
+                            });
+                            changed = true;
+                        }
+                        break;
+                }
+            }
             if (mainTool.Actual_MoveInDate != currentTool.Actual_MoveInDate)
             {
                 DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
