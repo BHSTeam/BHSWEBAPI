@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Dynamic;
 using WebGrease.Css.Extensions;
+using System.EnterpriseServices;
 
 namespace BHSK_TMS_API.Controllers
 {
@@ -973,8 +974,7 @@ namespace BHSK_TMS_API.Controllers
                                                 bool toolChanged = CheckToolChanges(mainTool, currentTool, Userid, importDetails.ImportId, row + 1);
                                                 if (toolChanged)
                                                 {
-                                                    mainTool.Id = currentTool.Id;
-                                                    DAL_AccessLayer.UpdateMainTool(mainTool);
+                                                    DAL_AccessLayer.UpdateMainTool(currentTool);
                                                 }
                                                 Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(currentTool);
                                                 if (currentShipment != null)
@@ -982,8 +982,7 @@ namespace BHSK_TMS_API.Controllers
                                                     shipmentChanged = CheckShipmentChanges(shipment, currentShipment, Userid, importDetails.ImportId, row + 1);
                                                     if (shipmentChanged)
                                                     {
-                                                        shipment.Id = currentShipment.Id;
-                                                        DAL_AccessLayer.UpdateShipmenDetails(shipment);
+                                                        DAL_AccessLayer.UpdateShipmenDetails(currentShipment);
                                                     }
                                                 }
                                                 else
@@ -1080,461 +1079,34 @@ namespace BHSK_TMS_API.Controllers
 
         private static bool CheckShipmentChanges(Shipment shipment, Shipment currentShipment, string Userid, int importId, int row)
         {
+            return CheckShipmentChanges(typeof(Shipment).GetProperties().Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(shipment))), currentShipment, Userid, importId, row);
+        }
+
+        private static bool CheckShipmentChanges(ExpandoObject shipment, Shipment currentShipment, string Userid, int importId, int row)
+        {
+            return CheckShipmentChanges(shipment.AsEnumerable(), currentShipment, Userid, importId, row);
+        }
+
+        private static bool CheckShipmentChanges(IEnumerable<KeyValuePair<string, object>> shipment, Shipment currentShipment, string Userid, int importId, int row)
+        {
             bool changed = false;
-            if (shipment.Country != currentShipment.Country)
+            foreach (KeyValuePair<string, object> keyValuePair in shipment)
             {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                object currentValue = typeof(Shipment).GetProperty(keyValuePair.Key).GetValue(currentShipment);
+                if (!keyValuePair.Value.Equals(currentValue))
                 {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Country",
-                    Details = currentShipment.Country + "→" + shipment.Country,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Mode != currentShipment.Mode)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Mode",
-                    Details = currentShipment.Mode + "→" + shipment.Mode,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Planned_SG_Arrival != currentShipment.Planned_SG_Arrival)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Planned_SG_Arrival",
-                    Details = currentShipment.Planned_SG_Arrival + "→" + shipment.Planned_SG_Arrival,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.DualPickup != currentShipment.DualPickup)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "DualPickup",
-                    Details = currentShipment.DualPickup + "→" + shipment.DualPickup,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Temperature != currentShipment.Temperature)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Temperature",
-                    Details = currentShipment.Temperature + "→" + shipment.Temperature,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Humidity != currentShipment.Humidity)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Humidity",
-                    Details = currentShipment.Humidity + "→" + shipment.Humidity,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Permit != currentShipment.Permit)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Permit",
-                    Details = currentShipment.Permit + "→" + shipment.Permit,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Escort != currentShipment.Escort)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Escort",
-                    Details = currentShipment.Escort + "→" + shipment.Escort,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.DangerousCargo != currentShipment.DangerousCargo)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "DangerousCargo",
-                    Details = currentShipment.DangerousCargo + "→" + shipment.DangerousCargo,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Forwarder != currentShipment.Forwarder)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Forwarder",
-                    Details = currentShipment.Forwarder + "→" + shipment.Forwarder,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Actual_SG_Arrival != currentShipment.Actual_SG_Arrival)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Actual_SG_Arrival",
-                    Details = currentShipment.Actual_SG_Arrival + "→" + shipment.Actual_SG_Arrival,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.AirShippingLine != currentShipment.AirShippingLine)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "AirShippingLine",
-                    Details = currentShipment.AirShippingLine + "→" + shipment.AirShippingLine,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.CargoReady != currentShipment.CargoReady)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "CargoReady",
-                    Details = currentShipment.CargoReady + "→" + shipment.CargoReady,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Confirm_SG_Arrival != currentShipment.Confirm_SG_Arrival)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Confirm_SG_Arrival",
-                    Details = currentShipment.Confirm_SG_Arrival + "→" + shipment.Confirm_SG_Arrival,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Delayed != currentShipment.Delayed)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Delayed",
-                    Details = currentShipment.Delayed + "→" + shipment.Delayed,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.DelayedReason != currentShipment.DelayedReason)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "DelayedReason",
-                    Details = currentShipment.DelayedReason + "→" + shipment.DelayedReason,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.DocumentReady != currentShipment.DocumentReady)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "DocumentReady",
-                    Details = currentShipment.DocumentReady + "→" + shipment.DocumentReady,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.EQPID != currentShipment.EQPID)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "EQPID",
-                    Details = currentShipment.EQPID + "→" + shipment.EQPID,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.FlightVesselNumber != currentShipment.FlightVesselNumber)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "FlightVesselNumber",
-                    Details = currentShipment.FlightVesselNumber + "→" + shipment.FlightVesselNumber,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.FlightVessel_ATD != currentShipment.FlightVessel_ATD)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "FlightVessel_ATD",
-                    Details = currentShipment.FlightVessel_ATD + "→" + shipment.FlightVessel_ATD,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.FlightVessel_ETD != currentShipment.FlightVessel_ETD)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "FlightVessel_ETD",
-                    Details = currentShipment.FlightVessel_ETD + "→" + shipment.FlightVessel_ETD,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.HAWB != currentShipment.HAWB)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "HAWB",
-                    Details = currentShipment.HAWB + "→" + shipment.HAWB,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.MasterAWB != currentShipment.MasterAWB)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "MasterAWB",
-                    Details = currentShipment.MasterAWB + "→" + shipment.MasterAWB,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.NumCrates != currentShipment.NumCrates)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "NumCrates",
-                    Details = currentShipment.NumCrates + "→" + shipment.NumCrates,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Pickup_Actual != currentShipment.Pickup_Actual)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Pickup_Actual",
-                    Details = currentShipment.Pickup_Actual + "→" + shipment.Pickup_Actual,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Pickup_Planned != currentShipment.Pickup_Planned)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Pickup_Planned",
-                    Details = currentShipment.Pickup_Planned + "→" + shipment.Pickup_Planned,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.ToolId != currentShipment.ToolId)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "ToolId",
-                    Details = currentShipment.ToolId + "→" + shipment.ToolId,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.TotalArea != currentShipment.TotalArea)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "TotalArea",
-                    Details = currentShipment.TotalArea + "→" + shipment.TotalArea,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.TotalVolume != currentShipment.TotalVolume)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "TotalVolume",
-                    Details = currentShipment.TotalVolume + "→" + shipment.TotalVolume,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.TotalWeight != currentShipment.TotalWeight)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "TotalWeight",
-                    Details = currentShipment.TotalWeight + "→" + shipment.TotalWeight,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Transit != currentShipment.Transit)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Transit",
-                    Details = currentShipment.Transit + "→" + shipment.Transit,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Transit_ATA != currentShipment.Transit_ATA)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Transit_ATA",
-                    Details = currentShipment.Transit_ATA + "→" + shipment.Transit_ATA,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Transit_ATD != currentShipment.Transit_ATD)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Transit_ATD",
-                    Details = currentShipment.Transit_ATD + "→" + shipment.Transit_ATD,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Transit_ETA != currentShipment.Transit_ETA)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Transit_ETA",
-                    Details = currentShipment.Transit_ETA + "→" + shipment.Transit_ETA,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (shipment.Transit_ETD != currentShipment.Transit_ETD)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Transit_ETD",
-                    Details = currentShipment.Transit_ETD + "→" + shipment.Transit_ETD,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
+                    DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                    {
+                        ImportId = importId,
+                        Activity = "Update",
+                        Column_Name = keyValuePair.Key,
+                        Details = currentValue.ToString() + "→" + keyValuePair.Value.ToString(),
+                        RowNumber = row,
+                        UserId = Userid
+                    });
+                    typeof(Shipment).GetProperty(keyValuePair.Key).SetValue(currentShipment, keyValuePair.Value);
+                    changed = true;
+                }
             }
 
             return changed;
@@ -1544,276 +1116,25 @@ namespace BHSK_TMS_API.Controllers
         {
             bool changed = false;
             foreach (KeyValuePair<string, object> keyValuePair in mainTool.AsEnumerable()) {
-                switch(keyValuePair.Key)
+                object currentValue = typeof(MainTool).GetProperty(keyValuePair.Key).GetValue(currentTool);
+                if (!keyValuePair.Value.Equals(currentValue))
                 {
-                    case "FCADate":
-                        break;
-                    default:
-                        object currentValue = typeof(MainTool).GetProperty("keyValuePair.Key").GetValue(currentTool);
-                        if (keyValuePair.Value != currentValue)
-                        {
-                            DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                            {
-                                ImportId = importId,
-                                Activity = "Update",
-                                Column_Name = keyValuePair.Key,
-                                Details = currentValue.ToString() + "→" + keyValuePair.Value.ToString(),
-                                RowNumber = row,
-                                UserId = Userid
-                            });
-                            changed = true;
-                        }
-                        break;
+                    DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
+                    {
+                        ImportId = importId,
+                        Activity = "Update",
+                        Column_Name = keyValuePair.Key,
+                        Details = currentValue.ToString() + "→" + keyValuePair.Value.ToString(),
+                        RowNumber = row,
+                        UserId = Userid
+                    });
+                    if (keyValuePair.Key == "FCADate")
+                    {
+                        currentTool.Previous_FCA_Changes = currentTool.FCADate;
+                    }
+                    typeof(MainTool).GetProperty(keyValuePair.Key).SetValue(currentTool, keyValuePair.Value);
+                    changed = true;
                 }
-            }
-            if (mainTool.Actual_MoveInDate != currentTool.Actual_MoveInDate)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Actual_MoveInDate",
-                    Details = currentTool.Actual_MoveInDate + "→" + mainTool.Actual_MoveInDate,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Area != currentTool.Area)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Area",
-                    Details = currentTool.Area + "→" + mainTool.Area,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Custom1 != currentTool.Custom1)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Custom1",
-                    Details = currentTool.Custom1 + "→" + mainTool.Custom1,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Custom2 != currentTool.Custom2)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Custom2",
-                    Details = currentTool.Custom2 + "→" + mainTool.Custom2,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Entity != currentTool.Entity)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Entity",
-                    Details = currentTool.Entity + "→" + mainTool.Entity,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.FCADate != currentTool.FCADate)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "FCADate",
-                    Details = currentTool.FCADate + "→" + mainTool.FCADate,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-
-                mainTool.Previous_FCA_Changes = currentTool.FCADate;
-                changed = true;
-            }
-            if (mainTool.MIDate != currentTool.MIDate)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "MIDate",
-                    Details = currentTool.MIDate + "→" + mainTool.MIDate,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Model != currentTool.Model)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Model",
-                    Details = currentTool.Model + "→" + mainTool.Model,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.PODescription != currentTool.PODescription)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "PODescription",
-                    Details = currentTool.PODescription + "→" + mainTool.PODescription,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Priority != currentTool.Priority)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Priority",
-                    Details = currentTool.Priority + "→" + mainTool.Priority,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Remarks != currentTool.Remarks)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Remarks",
-                    Details = currentTool.Remarks + "→" + mainTool.Remarks,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.SubType != currentTool.SubType)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "SubType",
-                    Details = currentTool.SubType + "→" + mainTool.SubType,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.TradeTerm != currentTool.TradeTerm)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "TradeTerm",
-                    Details = currentTool.TradeTerm + "→" + mainTool.TradeTerm,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Type != currentTool.Type)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Type",
-                    Details = currentTool.Type + "→" + mainTool.Type,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.Vendor != currentTool.Vendor)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "Vendor",
-                    Details = currentTool.Vendor + "→" + mainTool.Vendor,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.VEQPID != currentTool.VEQPID)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "VEQPID",
-                    Details = currentTool.VEQPID + "→" + mainTool.VEQPID,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.EQPID != currentTool.EQPID)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "EQPID",
-                    Details = currentTool.EQPID + "→" + mainTool.EQPID,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.PONumber != currentTool.PONumber)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "PONumber",
-                    Details = currentTool.PONumber + "→" + mainTool.PONumber,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
-            }
-            if (mainTool.DualPickup != currentTool.DualPickup)
-            {
-                DAL_AccessLayer.AddImportDetailsLog(new ImportDetailsLog
-                {
-                    ImportId = importId,
-                    Activity = "Update",
-                    Column_Name = "DualPickup",
-                    Details = currentTool.DualPickup + "→" + mainTool.DualPickup,
-                    RowNumber = row,
-                    UserId = Userid
-                });
-                changed = true;
             }
 
             return changed;
@@ -2302,7 +1623,7 @@ namespace BHSK_TMS_API.Controllers
                 }
                 Shipment currentShipment = DAL_AccessLayer.FindShipmentInfo(shipmentDetails.Id);
                 CheckShipmentChanges(shipmentDetails, currentShipment, userId, -1, -1);
-                DAL_AccessLayer.UpdateShipmenDetails(shipmentDetails);
+                DAL_AccessLayer.UpdateShipmenDetails(currentShipment);
 
                 return "The shipment has been successfully updated.";
             }
